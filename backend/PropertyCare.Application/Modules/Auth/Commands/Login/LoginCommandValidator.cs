@@ -1,0 +1,19 @@
+namespace PropertyCare.Application.Modules.Auth.Commands.Login;
+
+public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
+{
+    public LoginCommandValidator()
+    {
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email is required.")
+            .EmailAddress().WithMessage("Email is not valid.");
+
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Password is required.")
+            .MinimumLength(6).WithMessage("Password must be at least 6 characters long.");
+
+        RuleFor(x => x.Fingerprint)
+            .MaximumLength(256)
+            .When(x => x.Fingerprint is not null);
+    }
+}
