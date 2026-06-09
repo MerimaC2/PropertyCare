@@ -1,0 +1,16 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { RequestFormLookupsDto } from './lookups-api.models';
+
+@Injectable({ providedIn: 'root' })
+export class LookupsApiService {
+  private readonly apiUrl = `${environment.apiUrl}/api/lookups`;
+
+  constructor(private http: HttpClient) {}
+
+  getRequestFormLookups(): Observable<RequestFormLookupsDto> {
+    return this.http.get<RequestFormLookupsDto>(`${this.apiUrl}/request-form`);
+  }
+}
