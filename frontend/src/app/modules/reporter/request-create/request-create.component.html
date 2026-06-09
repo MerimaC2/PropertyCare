@@ -1,0 +1,105 @@
+<div class="page-header">
+  <div>
+    <h1>New request</h1>
+    <p>Describe the fault and tell us where it is.</p>
+  </div>
+</div>
+
+<mat-card class="form-card">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" placeholder="e.g. Air conditioner is leaking" />
+      <mat-error *ngIf="form.controls['title'].hasError('required')">
+        Title is required.
+      </mat-error>
+      <mat-error *ngIf="form.controls['title'].hasError('minlength')">
+        Title must be at least 5 characters long.
+      </mat-error>
+      <mat-error *ngIf="form.controls['title'].hasError('maxlength')">
+        Title can have at most 150 characters.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        rows="4"
+        placeholder="What happened? Where exactly? Since when?"
+      ></textarea>
+      <mat-error *ngIf="form.controls['description'].hasError('required')">
+        Description is required.
+      </mat-error>
+      <mat-error *ngIf="form.controls['description'].hasError('minlength')">
+        Description must be at least 10 characters long.
+      </mat-error>
+      <mat-error *ngIf="form.controls['description'].hasError('maxlength')">
+        Description can have at most 2000 characters.
+      </mat-error>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Building</mat-label>
+        <mat-select formControlName="buildingId">
+          <mat-option *ngFor="let building of lookups?.buildings" [value]="building.id">
+            {{ building.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.controls['buildingId'].hasError('required')">
+          Building is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Unit (optional)</mat-label>
+        <mat-select formControlName="unitId" [disabled]="!form.value.buildingId">
+          <mat-option [value]="null">-</mat-option>
+          <mat-option *ngFor="let unit of unitsForBuilding" [value]="unit.id">
+            {{ unit.label }}
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="!form.value.buildingId">Select a building first</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Asset (optional)</mat-label>
+        <mat-select formControlName="assetId" [disabled]="!form.value.unitId">
+          <mat-option [value]="null">-</mat-option>
+          <mat-option *ngFor="let asset of assetsForUnit" [value]="asset.id">
+            {{ asset.name }}
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="!form.value.unitId">Select a unit first</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Priority</mat-label>
+        <mat-select formControlName="priorityId">
+          <mat-option *ngFor="let priority of lookups?.priorities" [value]="priority.id">
+            {{ priority.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.controls['priorityId'].hasError('required')">
+          Priority is required.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="api-error" *ngIf="apiError">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ apiError }}</span>
+    </div>
+
+    <div class="form-actions">
+      <a mat-stroked-button routerLink="../my-requests">Cancel</a>
+      <button mat-flat-button color="primary" type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Submitting...' : 'Submit request' }}
+      </button>
+    </div>
+
+    <mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+  </form>
+</mat-card>

@@ -1,0 +1,40 @@
+.layout-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-right: 24px;
+  }
+
+  .nav-links a {
+    margin-right: 4px;
+
+    mat-icon {
+      margin-right: 4px;
+    }
+
+    &.active-link {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  .spacer {
+    flex: 1;
+  }
+}
+
+.layout-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.user-menu-info {
+  pointer-events: none;
+}
