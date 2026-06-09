@@ -1,0 +1,147 @@
+// Shared page styles: header, filter bar, table, status/priority chips.
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 1.6rem;
+  }
+
+  p {
+    margin: 0;
+    color: #5b6472;
+    font-size: 0.95rem;
+  }
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 16px 0;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(15, 40, 84, 0.06);
+
+  mat-form-field {
+    min-width: 160px;
+    flex: 1 1 160px;
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 16px;
+
+    button mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+.table-container {
+  background: #fff;
+  border-radius: 12px;
+  overflow: auto;
+
+  table {
+    width: 100%;
+  }
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 16px;
+  color: #5b6472;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #c4cad4;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+// --- Chips ---
+
+%chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-chip {
+  @extend %chip;
+
+  &.status-new {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.status-assigned {
+    background: #ede7f6;
+    color: #5e35b1;
+  }
+
+  &.status-in_progress {
+    background: #fff8e1;
+    color: #b26a00;
+  }
+
+  &.status-on_hold {
+    background: #eceff1;
+    color: #546e7a;
+  }
+
+  &.status-completed {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.status-cancelled {
+    background: #fbe9e7;
+    color: #c62828;
+  }
+}
+
+.priority-chip {
+  @extend %chip;
+
+  &.priority-low {
+    background: #eceff1;
+    color: #546e7a;
+  }
+
+  &.priority-med {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.priority-high {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  &.priority-crit {
+    background: #ffebee;
+    color: #b71c1c;
+  }
+}
