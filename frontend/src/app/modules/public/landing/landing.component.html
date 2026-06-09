@@ -1,0 +1,95 @@
+<div class="landing">
+
+  <!-- Hero -->
+  <header class="hero">
+    <nav class="hero__nav">
+      <div class="brand">
+        <mat-icon>home_repair_service</mat-icon>
+        <span>PropertyCare</span>
+      </div>
+      <button mat-stroked-button class="nav-login" (click)="onPrimaryAction()">
+        {{ isLoggedIn ? 'My dashboard' : 'Sign in' }}
+      </button>
+    </nav>
+
+    <div class="hero__content">
+      <h1>Building maintenance,<br />without the chaos.</h1>
+      <p>
+        PropertyCare digitalizes fault reporting and service interventions for offices,
+        residential complexes and warehouses - from the first report to the final fix.
+      </p>
+      <div class="hero__actions">
+        <button mat-flat-button color="primary" class="cta" (click)="onPrimaryAction()">
+          {{ isLoggedIn ? 'Go to dashboard' : 'Get started' }}
+        </button>
+        <a mat-button href="#features">See how it works</a>
+      </div>
+    </div>
+
+    <div class="hero__stats">
+      <div class="stat">
+        <span class="stat__value">3</span>
+        <span class="stat__label">user roles</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">4</span>
+        <span class="stat__label">SLA priorities</span>
+      </div>
+      <div class="stat">
+        <span class="stat__value">24/7</span>
+        <span class="stat__label">fault intake</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Features -->
+  <section id="features" class="features">
+    <h2>One flow from fault to fix</h2>
+    <p class="features__subtitle">
+      Reporters file requests, dispatchers triage and assign, technicians resolve - everyone sees the same picture.
+    </p>
+
+    <div class="features__grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <div class="feature-card__icon">
+          <mat-icon>{{ feature.icon }}</mat-icon>
+        </div>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.text }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="steps">
+    <h2>How it works</h2>
+    <div class="steps__row">
+      <div class="step">
+        <span class="step__number">1</span>
+        <h3>Report</h3>
+        <p>A reporter creates a fault request with the building, equipment and priority.</p>
+      </div>
+      <mat-icon class="step__arrow">arrow_forward</mat-icon>
+      <div class="step">
+        <span class="step__number">2</span>
+        <h3>Triage</h3>
+        <p>The dispatcher reviews the request and assigns it to the right technician.</p>
+      </div>
+      <mat-icon class="step__arrow">arrow_forward</mat-icon>
+      <div class="step">
+        <span class="step__number">3</span>
+        <h3>Resolve</h3>
+        <p>The technician completes the intervention and the reporter sees the status change.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="brand brand--small">
+      <mat-icon>home_repair_service</mat-icon>
+      <span>PropertyCare</span>
+    </div>
+    <span class="footer__note">e-Kvarovi &middot; RS1 student project &middot; 2025/26</span>
+  </footer>
+</div>

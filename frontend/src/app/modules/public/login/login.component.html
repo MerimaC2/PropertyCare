@@ -1,0 +1,70 @@
+<div class="login-page">
+  <mat-card class="login-card">
+    <div class="login-card__header">
+      <div class="brand" routerLink="/">
+        <mat-icon>home_repair_service</mat-icon>
+        <span>PropertyCare</span>
+      </div>
+      <h1>Welcome back</h1>
+      <p>Sign in to manage your maintenance requests.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" autocomplete="email" />
+        <mat-icon matSuffix>mail_outline</mat-icon>
+        <mat-error *ngIf="form.controls['email'].hasError('required')">
+          Email is required.
+        </mat-error>
+        <mat-error *ngIf="form.controls['email'].hasError('email')">
+          Email is not valid.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          [type]="hidePassword ? 'password' : 'text'"
+          formControlName="password"
+          autocomplete="current-password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="hidePassword = !hidePassword"
+          [attr.aria-label]="'Toggle password visibility'"
+        >
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.controls['password'].hasError('required')">
+          Password is required.
+        </mat-error>
+        <mat-error *ngIf="form.controls['password'].hasError('minlength')">
+          Password must be at least 6 characters long.
+        </mat-error>
+      </mat-form-field>
+
+      <div class="api-error" *ngIf="apiError">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ apiError }}</span>
+      </div>
+
+      <button
+        mat-flat-button
+        color="primary"
+        class="full-width submit"
+        type="submit"
+        [disabled]="isLoading"
+      >
+        {{ isLoading ? 'Signing in...' : 'Sign in' }}
+      </button>
+    </form>
+
+    <mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+    <a class="back-link" routerLink="/">&larr; Back to home</a>
+  </mat-card>
+</div>
