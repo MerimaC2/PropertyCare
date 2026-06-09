@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="PropertyCare.API/PropertyCare.API.csproj" />
+  <Project Path="PropertyCare.Application/PropertyCare.Application.csproj" />
+  <Project Path="PropertyCare.Domain/PropertyCare.Domain.csproj" />
+  <Project Path="PropertyCare.Infrastructure/PropertyCare.Infrastructure.csproj" />
+  <Project Path="PropertyCare.Tests/PropertyCare.Tests.csproj" />
+</Solution>

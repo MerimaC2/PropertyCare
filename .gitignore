@@ -1,0 +1,23 @@
+# --- .NET ---
+[Bb]in/
+[Oo]bj/
+*.user
+.vs/
+*.suo
+
+# --- Node / Angular ---
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+
+# --- Tooling / local config ---
+.claude/
+
+# --- Logs ---
+logs/
+*.log
+
+# --- OS ---
+Thumbs.db
+.DS_Store
