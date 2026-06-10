@@ -1,0 +1,10 @@
+@use '../../../shared/styles/page' as *;
+
+.cell-subtext {
+  font-size: 0.78rem;
+  color: #8a93a3;
+}
+
+td .mat-mdc-outlined-button mat-icon {
+  margin-right: 4px;
+}
