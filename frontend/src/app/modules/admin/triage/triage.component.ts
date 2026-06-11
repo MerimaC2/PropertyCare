@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
@@ -51,7 +51,8 @@ export class TriageComponent implements OnInit {
     private workOrdersApi: WorkOrdersApiService,
     private lookupsApi: LookupsApiService,
     private toaster: ToasterService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {
     this.filterForm = this.formBuilder.group({
       search: [''],
@@ -65,7 +66,10 @@ export class TriageComponent implements OnInit {
 
   ngOnInit(): void {
     this.lookupsApi.getTriageLookups().subscribe({
-      next: lookups => (this.lookups = lookups),
+      next: lookups => {
+        this.lookups = lookups;
+        this.cdr.markForCheck();
+      },
       error: () => this.toaster.error('Failed to load filter options.')
     });
     this.loadData();
@@ -94,9 +98,11 @@ export class TriageComponent implements OnInit {
           this.currentPage = result.currentPage;
           this.pageSize = result.pageSize;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: () => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           this.toaster.error('Failed to load requests.');
         }
       });

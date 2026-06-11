@@ -1,7 +1,7 @@
 import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import localeBs from '@angular/common/locales/bs';
-import { LOCALE_ID, NgModule, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { LOCALE_ID, NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -23,7 +23,6 @@ registerLocaleData(localeBs);
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptors([authInterceptor])),
     { provide: LOCALE_ID, useValue: 'bs' },
     { provide: MAT_DATE_LOCALE, useValue: 'bs-BA' }
