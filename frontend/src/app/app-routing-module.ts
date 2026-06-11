@@ -15,6 +15,12 @@ const routes: Routes = [
     data: { roles: [APP_ROLES.reporter] },
     loadChildren: () => import('./modules/reporter/reporter-module').then(m => m.ReporterModule)
   },
+  {
+    path: 'admin',
+    canActivate: [roleGuard],
+    data: { roles: [APP_ROLES.administrator] },
+    loadChildren: () => import('./modules/admin/admin-module').then(m => m.AdminModule)
+  },
   { path: '**', redirectTo: '' }
 ];
 

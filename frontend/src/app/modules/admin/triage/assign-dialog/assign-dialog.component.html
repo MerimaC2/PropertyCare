@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>Assign technician</h2>
+
+<mat-dialog-content>
+  <p class="request-summary">
+    <strong>{{ data.request.title }}</strong><br />
+    <small>{{ data.request.buildingName }} &middot; {{ data.request.priorityName }} priority</small>
+  </p>
+
+  <form [formGroup]="form" novalidate>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Technician</mat-label>
+      <mat-select formControlName="technicianId">
+        <mat-option *ngFor="let technician of data.technicians" [value]="technician.id">
+          {{ technician.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.controls['technicianId'].hasError('required')">
+        Technician is required.
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Note for the technician (optional)</mat-label>
+      <textarea matInput formControlName="note" rows="3"></textarea>
+      <mat-error *ngIf="form.controls['note'].hasError('maxlength')">
+        Note can have at most 1000 characters.
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onSubmit()">Continue</button>
+</mat-dialog-actions>

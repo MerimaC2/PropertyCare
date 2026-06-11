@@ -24,3 +24,10 @@ export interface RequestFormLookupsDto {
   priorities: LookupItemDto[];
   statuses: LookupItemDto[];
 }
+
+export interface TriageLookupsDto {
+  technicians: LookupItemDto[];
+  statuses: LookupItemDto[];
+  priorities: LookupItemDto[];
+  buildings: LookupItemDto[];
+}

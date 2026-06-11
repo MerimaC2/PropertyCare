@@ -7,7 +7,9 @@ import { PageResult } from '../../core/models/paging/page-result';
 import {
   CreateMaintenanceRequestCommand,
   ListMyMaintenanceRequestsQuery,
-  MyMaintenanceRequestDto
+  ListTriageRequestsQuery,
+  MyMaintenanceRequestDto,
+  TriageRequestDto
 } from './maintenance-requests-api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -23,5 +25,10 @@ export class MaintenanceRequestsApiService {
   listMy(query: ListMyMaintenanceRequestsQuery): Observable<PageResult<MyMaintenanceRequestDto>> {
     const params = buildHttpParams(query as unknown as Record<string, unknown>);
     return this.http.get<PageResult<MyMaintenanceRequestDto>>(`${this.apiUrl}/my`, { params });
+  }
+
+  listForTriage(query: ListTriageRequestsQuery): Observable<PageResult<TriageRequestDto>> {
+    const params = buildHttpParams(query as unknown as Record<string, unknown>);
+    return this.http.get<PageResult<TriageRequestDto>>(`${this.apiUrl}/triage`, { params });
   }
 }

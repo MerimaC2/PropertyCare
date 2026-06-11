@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PropertyCare.Application.Common;
 using PropertyCare.Application.Modules.MaintenanceRequests.Commands.Create;
+using PropertyCare.Application.Modules.MaintenanceRequests.Queries.ListForTriage;
 using PropertyCare.Application.Modules.MaintenanceRequests.Queries.ListMy;
 using PropertyCare.Domain.Entities.Identity;
 
@@ -28,6 +29,16 @@ public sealed class MaintenanceRequestsController(ISender sender) : ControllerBa
     [Authorize(Roles = UserRoleEntity.Names.Reporter)]
     public async Task<PageResult<ListMyMaintenanceRequestsQueryDto>> ListMy(
         [FromQuery] ListMyMaintenanceRequestsQuery query,
+        CancellationToken ct)
+    {
+        return await sender.Send(query, ct);
+    }
+
+    /// <summary>Paged, filterable and sortable list of all requests for admin triage.</summary>
+    [HttpGet("triage")]
+    [Authorize(Roles = UserRoleEntity.Names.Administrator)]
+    public async Task<PageResult<ListTriageRequestsQueryDto>> ListForTriage(
+        [FromQuery] ListTriageRequestsQuery query,
         CancellationToken ct)
     {
         return await sender.Send(query, ct);
