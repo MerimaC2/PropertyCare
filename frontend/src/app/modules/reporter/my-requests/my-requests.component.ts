@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PageEvent } from '@angular/material/paginator';
 import { LookupsApiService } from '../../../api-services/lookups/lookups-api.service';
@@ -34,7 +34,8 @@ export class MyRequestsComponent implements OnInit {
     private formBuilder: FormBuilder,
     private requestsApi: MaintenanceRequestsApiService,
     private lookupsApi: LookupsApiService,
-    private toaster: ToasterService
+    private toaster: ToasterService,
+    private cdr: ChangeDetectorRef
   ) {
     this.filterForm = this.formBuilder.group({
       statusId: [null],
@@ -47,7 +48,10 @@ export class MyRequestsComponent implements OnInit {
 
   ngOnInit(): void {
     this.lookupsApi.getRequestFormLookups().subscribe({
-      next: lookups => (this.lookups = lookups),
+      next: lookups => {
+        this.lookups = lookups;
+        this.cdr.markForCheck();
+      },
       error: () => this.toaster.error('Failed to load filter options.')
     });
     this.loadData();
@@ -73,9 +77,11 @@ export class MyRequestsComponent implements OnInit {
           this.currentPage = result.currentPage;
           this.pageSize = result.pageSize;
           this.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: () => {
           this.isLoading = false;
+          this.cdr.markForCheck();
           this.toaster.error('Failed to load your requests.');
         }
       });

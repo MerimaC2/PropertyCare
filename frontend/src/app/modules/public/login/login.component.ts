@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -19,7 +19,8 @@ export class LoginComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authFacade: AuthFacadeService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     // Frontend validation mirrors the backend LoginCommandValidator.
     this.form = this.formBuilder.group({
@@ -45,6 +46,7 @@ export class LoginComponent {
       error: (error: HttpErrorResponse) => {
         this.isLoading = false;
         this.apiError = error.error?.message ?? 'Sign in failed. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }

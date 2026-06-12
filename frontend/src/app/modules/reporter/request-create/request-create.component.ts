@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -29,7 +29,8 @@ export class RequestCreateComponent implements OnInit {
     private lookupsApi: LookupsApiService,
     private requestsApi: MaintenanceRequestsApiService,
     private toaster: ToasterService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     // Frontend validation mirrors the backend CreateMaintenanceRequestCommandValidator.
     this.form = this.formBuilder.group({
@@ -44,7 +45,10 @@ export class RequestCreateComponent implements OnInit {
 
   ngOnInit(): void {
     this.lookupsApi.getRequestFormLookups().subscribe({
-      next: lookups => (this.lookups = lookups),
+      next: lookups => {
+        this.lookups = lookups;
+        this.cdr.markForCheck();
+      },
       error: () => this.toaster.error('Failed to load form data.')
     });
 
@@ -90,6 +94,7 @@ export class RequestCreateComponent implements OnInit {
         if (fieldErrors?.length) {
           this.apiError = fieldErrors.map(e => e.message).join(' ');
         }
+        this.cdr.markForCheck();
       }
     });
   }
