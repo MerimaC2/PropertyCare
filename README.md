@@ -21,6 +21,12 @@ backend/    ASP.NET Core solution (PropertyCare.Backend.slnx)
 frontend/   Angular application
 ```
 
+## Prerequisites
+
+- **.NET 10 SDK**
+- **Node.js 20+** and npm
+- **SQL Server LocalDB** (ships with Visual Studio; the default `MSSQLLocalDB` instance is used)
+
 ## Running locally
 
 ### Backend
@@ -33,13 +39,18 @@ dotnet run --project PropertyCare.API --launch-profile https
 - API: https://localhost:7260 (Swagger UI at /swagger in Development)
 - On first run the database is migrated and seeded with demo data automatically.
 - Connection string and JWT settings live in `PropertyCare.API/appsettings.Development.json`.
+- First run only — trust the local HTTPS certificate so the browser accepts API calls:
+
+  ```bash
+  dotnet dev-certs https --trust
+  ```
 
 ### Frontend
 
 ```bash
 cd frontend
 npm install
-ng serve
+npm start
 ```
 
 - App: http://localhost:4200
