@@ -64,3 +64,12 @@ export interface TriageRequestDto {
   assignedToName?: string | null;
   createdAtUtc: string;
 }
+
+/** A photo attached to a maintenance request. `url` is relative to the API origin. */
+export interface RequestImageDto {
+  id: number;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  url: string;
+}

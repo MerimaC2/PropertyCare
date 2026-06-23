@@ -68,6 +68,9 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<IAppCurrentUser, AppCurrentUser>();
 
+        // Local file storage for request image attachments (served from wwwroot)
+        services.AddSingleton<IFileStorageService, LocalFileStorageService>();
+
         // Swagger with bearer token support
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>

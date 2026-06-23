@@ -34,6 +34,7 @@ public sealed class MaintenanceRequestEntity : BaseEntity
     public ICollection<WorkOrderEntity> WorkOrders { get; set; } = new List<WorkOrderEntity>();
     public ICollection<RequestCommentEntity> Comments { get; set; } = new List<RequestCommentEntity>();
     public ICollection<RequestStatusHistoryEntity> StatusHistory { get; set; } = new List<RequestStatusHistoryEntity>();
+    public ICollection<RequestImageEntity> Images { get; set; } = new List<RequestImageEntity>();
 
     public static class Constraints
     {

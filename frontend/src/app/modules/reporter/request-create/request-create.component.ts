@@ -1,7 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { concatMap, from, last, tap } from 'rxjs';
 import { LookupsApiService } from '../../../api-services/lookups/lookups-api.service';
 import {
   AssetLookupDto,
@@ -18,11 +19,19 @@ import { ToasterService } from '../../../core/services/toaster.service';
   styleUrls: ['./request-create.component.scss'],
   standalone: false
 })
-export class RequestCreateComponent implements OnInit {
+export class RequestCreateComponent implements OnInit, OnDestroy {
   form: FormGroup;
   lookups: RequestFormLookupsDto | null = null;
   isLoading = false;
   apiError: string | null = null;
+
+  /** Photos selected for upload, with a local preview URL each. */
+  photos: { file: File; url: string }[] = [];
+  isUploading = false;
+  uploadProgress = 0;
+
+  private readonly allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  private readonly maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB, mirrors the backend
 
   constructor(
     private formBuilder: FormBuilder,
@@ -72,6 +81,36 @@ export class RequestCreateComponent implements OnInit {
     return this.lookups?.assets.filter(a => a.unitId === unitId) ?? [];
   }
 
+  /** Validates picked files against the same rules as the backend, then queues them with a preview. */
+  onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) {
+      return;
+    }
+
+    for (const file of Array.from(input.files)) {
+      if (!this.allowedTypes.includes(file.type)) {
+        this.toaster.error(`${file.name}: only JPEG, PNG or WebP images are allowed.`);
+        continue;
+      }
+      if (file.size > this.maxFileSizeBytes) {
+        this.toaster.error(`${file.name}: image must be 5 MB or smaller.`);
+        continue;
+      }
+      this.photos.push({ file, url: URL.createObjectURL(file) });
+    }
+
+    // Reset so the same file can be picked again after removal.
+    input.value = '';
+    this.cdr.markForCheck();
+  }
+
+  removePhoto(index: number): void {
+    URL.revokeObjectURL(this.photos[index].url);
+    this.photos.splice(index, 1);
+    this.cdr.markForCheck();
+  }
+
   onSubmit(): void {
     this.apiError = null;
 
@@ -82,10 +121,12 @@ export class RequestCreateComponent implements OnInit {
 
     this.isLoading = true;
     this.requestsApi.create(this.form.value).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.toaster.success('Your request was submitted.');
-        this.router.navigate(['/reporter/my-requests']);
+      next: requestId => {
+        if (this.photos.length === 0) {
+          this.finishSuccess();
+          return;
+        }
+        this.uploadPhotos(requestId);
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading = false;
@@ -97,5 +138,62 @@ export class RequestCreateComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  /** Uploads queued photos one by one, tracking overall progress across all files. */
+  private uploadPhotos(requestId: number): void {
+    this.isUploading = true;
+    this.uploadProgress = 0;
+    const total = this.photos.length;
+    let completed = 0;
+
+    from(this.photos)
+      .pipe(
+        concatMap(photo =>
+          this.requestsApi.uploadImage(requestId, photo.file).pipe(
+            tap(httpEvent => {
+              if (httpEvent.type === HttpEventType.UploadProgress && httpEvent.total) {
+                const fileFraction = httpEvent.loaded / httpEvent.total;
+                this.uploadProgress = Math.round(((completed + fileFraction) / total) * 100);
+                this.cdr.markForCheck();
+              }
+            }),
+            last()
+          )
+        )
+      )
+      .subscribe({
+        next: () => {
+          completed++;
+          this.uploadProgress = Math.round((completed / total) * 100);
+          this.cdr.markForCheck();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isLoading = false;
+          this.isUploading = false;
+          this.apiError =
+            error.error?.message ?? 'The request was created, but some photos could not be uploaded.';
+          this.toaster.error('Some photos could not be uploaded.');
+          this.cdr.markForCheck();
+        },
+        complete: () => this.finishSuccess()
+      });
+  }
+
+  private finishSuccess(): void {
+    this.isLoading = false;
+    this.isUploading = false;
+    this.clearPhotos();
+    this.toaster.success('Your request was submitted.');
+    this.router.navigate(['/reporter/my-requests']);
+  }
+
+  private clearPhotos(): void {
+    this.photos.forEach(photo => URL.revokeObjectURL(photo.url));
+    this.photos = [];
+  }
+
+  ngOnDestroy(): void {
+    this.clearPhotos();
   }
 }

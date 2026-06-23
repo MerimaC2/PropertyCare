@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { buildHttpParams } from '../../core/models/build-http-params';
@@ -9,6 +9,7 @@ import {
   ListMyMaintenanceRequestsQuery,
   ListTriageRequestsQuery,
   MyMaintenanceRequestDto,
+  RequestImageDto,
   TriageRequestDto
 } from './maintenance-requests-api.models';
 
@@ -30,5 +31,20 @@ export class MaintenanceRequestsApiService {
   listForTriage(query: ListTriageRequestsQuery): Observable<PageResult<TriageRequestDto>> {
     const params = buildHttpParams(query as unknown as Record<string, unknown>);
     return this.http.get<PageResult<TriageRequestDto>>(`${this.apiUrl}/triage`, { params });
+  }
+
+  /** Uploads one photo to a request; emits HTTP events so the caller can track upload progress. */
+  uploadImage(requestId: number, file: File): Observable<HttpEvent<RequestImageDto>> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<RequestImageDto>(`${this.apiUrl}/${requestId}/images`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+  }
+
+  listImages(requestId: number): Observable<RequestImageDto[]> {
+    return this.http.get<RequestImageDto[]>(`${this.apiUrl}/${requestId}/images`);
   }
 }
