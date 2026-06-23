@@ -121,10 +121,9 @@
         type="file"
         hidden
         accept="image/jpeg,image/png,image/webp"
-        multiple
-        (change)="onFilesSelected($event)"
+        (change)="onFileSelected($event)"
       />
-      <p class="photos-hint">JPEG, PNG or WebP, up to 5 MB each.</p>
+      <p class="photos-hint">Pick an image and crop it before it's added. JPEG, PNG or WebP, up to 5 MB each.</p>
     </div>
 
     <div class="api-error" *ngIf="apiError">

@@ -2,7 +2,9 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
 import { concatMap, from, last, tap } from 'rxjs';
+import { ImageCropDialogComponent } from './image-crop-dialog/image-crop-dialog.component';
 import { LookupsApiService } from '../../../api-services/lookups/lookups-api.service';
 import {
   AssetLookupDto,
@@ -39,6 +41,7 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     private requestsApi: MaintenanceRequestsApiService,
     private toaster: ToasterService,
     private router: Router,
+    private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {
     // Frontend validation mirrors the backend CreateMaintenanceRequestCommandValidator.
@@ -81,28 +84,45 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     return this.lookups?.assets.filter(a => a.unitId === unitId) ?? [];
   }
 
-  /** Validates picked files against the same rules as the backend, then queues them with a preview. */
-  onFilesSelected(event: Event): void {
+  /** Validates a picked image, lets the user crop it, then queues the cropped result with a preview. */
+  onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (!input.files) {
+    const file = input.files?.[0];
+    input.value = ''; // reset so the same file can be picked again
+
+    if (!file) {
+      return;
+    }
+    if (!this.allowedTypes.includes(file.type)) {
+      this.toaster.error(`${file.name}: only JPEG, PNG or WebP images are allowed.`);
+      return;
+    }
+    if (file.size > this.maxFileSizeBytes) {
+      this.toaster.error(`${file.name}: image must be 5 MB or smaller.`);
       return;
     }
 
-    for (const file of Array.from(input.files)) {
-      if (!this.allowedTypes.includes(file.type)) {
-        this.toaster.error(`${file.name}: only JPEG, PNG or WebP images are allowed.`);
-        continue;
-      }
-      if (file.size > this.maxFileSizeBytes) {
-        this.toaster.error(`${file.name}: image must be 5 MB or smaller.`);
-        continue;
-      }
-      this.photos.push({ file, url: URL.createObjectURL(file) });
-    }
+    this.dialog
+      .open(ImageCropDialogComponent, { data: { file }, width: '720px', maxWidth: '92vw' })
+      .afterClosed()
+      .subscribe((blob?: Blob) => {
+        if (!blob) {
+          return;
+        }
+        const cropped = new File([blob], this.toPngName(file.name), { type: 'image/png' });
+        if (cropped.size > this.maxFileSizeBytes) {
+          this.toaster.error('The cropped image is larger than 5 MB.');
+          return;
+        }
+        this.photos.push({ file: cropped, url: URL.createObjectURL(cropped) });
+        this.cdr.markForCheck();
+      });
+  }
 
-    // Reset so the same file can be picked again after removal.
-    input.value = '';
-    this.cdr.markForCheck();
+  private toPngName(name: string): string {
+    const dot = name.lastIndexOf('.');
+    const base = dot > 0 ? name.substring(0, dot) : name;
+    return `${base}.png`;
   }
 
   removePhoto(index: number): void {
