@@ -5,6 +5,7 @@ import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { concatMap, from, last, tap } from 'rxjs';
 import { ImageCropDialogComponent } from './image-crop-dialog/image-crop-dialog.component';
+import { NotificationsStateService } from '../notifications/notifications-state.service';
 import { LookupsApiService } from '../../../api-services/lookups/lookups-api.service';
 import {
   AssetLookupDto,
@@ -42,6 +43,7 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     private toaster: ToasterService,
     private router: Router,
     private dialog: MatDialog,
+    private notifications: NotificationsStateService,
     private cdr: ChangeDetectorRef
   ) {
     // Frontend validation mirrors the backend CreateMaintenanceRequestCommandValidator.
@@ -204,6 +206,8 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     this.isLoading = false;
     this.isUploading = false;
     this.clearPhotos();
+    // A "request submitted" notification was just created on the server — refresh the bell badge.
+    this.notifications.refresh();
     this.toaster.success('Your request was submitted.');
     this.router.navigate(['/reporter/my-requests']);
   }
