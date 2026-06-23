@@ -1,6 +1,7 @@
 using PropertyCare.Application.Abstractions;
 using PropertyCare.Application.Common.Exceptions;
 using PropertyCare.Domain.Entities.Maintenance;
+using PropertyCare.Domain.Entities.System;
 
 namespace PropertyCare.Application.Modules.MaintenanceRequests.Commands.Create;
 
@@ -79,6 +80,16 @@ public sealed class CreateMaintenanceRequestCommandHandler
             ToStatusId = newStatus.Id,
             ChangedByUserId = userId,
             Note = "Request created."
+        });
+
+        // 7. Notify the reporter that their request was received.
+        _ctx.Notifications.Add(new NotificationEntity
+        {
+            TenantId = tenantId,
+            UserId = userId,
+            Type = NotificationType.RequestSubmitted,
+            Title = "Request submitted",
+            Message = $"Your request \"{entity.Title}\" was submitted and is awaiting triage."
         });
 
         await _ctx.SaveChangesAsync(ct);

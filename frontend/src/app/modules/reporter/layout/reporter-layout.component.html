@@ -17,6 +17,21 @@
 
   <span class="spacer"></span>
 
+  <a
+    mat-icon-button
+    routerLink="notifications"
+    routerLinkActive="active-link"
+    class="notif-button"
+    matTooltip="Notifications"
+    [matBadge]="notifications.unreadCount()"
+    [matBadgeHidden]="notifications.unreadCount() === 0"
+    matBadgeColor="warn"
+    matBadgeSize="small"
+    aria-label="Notifications"
+  >
+    <mat-icon>notifications</mat-icon>
+  </a>
+
   <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
     <mat-icon>account_circle</mat-icon>
     {{ user?.fullName }}

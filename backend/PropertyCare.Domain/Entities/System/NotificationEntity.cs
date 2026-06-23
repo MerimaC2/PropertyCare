@@ -14,6 +14,7 @@ public sealed class NotificationEntity : BaseEntity
     public string Title { get; set; } = null!;
     public string Message { get; set; } = null!;
     public bool IsRead { get; set; }
+    public NotificationType Type { get; set; } = NotificationType.General;
 
     public static class Constraints
     {

@@ -1,0 +1,72 @@
+<div class="page-header">
+  <div>
+    <h1>Notifications</h1>
+    <p>Updates about your requests.</p>
+  </div>
+  <button mat-stroked-button type="button" (click)="onMarkAllRead()">
+    <mat-icon>done_all</mat-icon>
+    Mark all as read
+  </button>
+</div>
+
+<mat-card class="filter-card">
+  <form [formGroup]="filterForm" (ngSubmit)="onApplyFilters()">
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="isRead">
+        <mat-option [value]="null">All</mat-option>
+        <mat-option [value]="false">Unread</mat-option>
+        <mat-option [value]="true">Read</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type">
+        <mat-option [value]="null">All</mat-option>
+        <mat-option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="filter-actions">
+      <button mat-flat-button color="primary" type="submit">Apply</button>
+      <button mat-stroked-button type="button" (click)="onResetFilters()">Reset</button>
+    </div>
+  </form>
+</mat-card>
+
+<mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+<div class="notif-list">
+  <button
+    type="button"
+    class="notif-item"
+    *ngFor="let n of items"
+    [class.unread]="!n.isRead"
+    (click)="onNotificationClick(n)"
+  >
+    <mat-icon class="notif-icon">{{ iconFor(n.type) }}</mat-icon>
+    <div class="notif-body">
+      <div class="notif-title-row">
+        <span class="notif-title">{{ n.title }}</span>
+        <span class="notif-date">{{ n.createdAtUtc | date: 'short' }}</span>
+      </div>
+      <p class="notif-message">{{ n.message }}</p>
+    </div>
+    <span class="unread-dot" *ngIf="!n.isRead" aria-label="Unread"></span>
+  </button>
+
+  <div class="empty" *ngIf="!isLoading && items.length === 0">
+    <mat-icon>notifications_none</mat-icon>
+    <span>No notifications.</span>
+  </div>
+</div>
+
+<mat-paginator
+  *ngIf="totalItems > 0"
+  [length]="totalItems"
+  [pageSize]="pageSize"
+  [pageIndex]="currentPage - 1"
+  [pageSizeOptions]="[10, 20, 50]"
+  (page)="onPageChange($event)"
+></mat-paginator>

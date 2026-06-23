@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,11 @@ public static class DependencyInjection
     {
         // Controllers + uniform validation error response for model binding failures
         services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                // Serialize enums (e.g. notification Type) as their string names.
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            })
             .ConfigureApiBehaviorOptions(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
