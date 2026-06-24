@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { buildHttpParams } from '../../core/models/build-http-params';
@@ -36,5 +36,14 @@ export class BuildingsApiService {
 
   listLocations(): Observable<BuildingLocationDto[]> {
     return this.http.get<BuildingLocationDto[]>(`${this.apiUrl}/locations`);
+  }
+
+  /** Whether the given building name is already taken (excluding the building being edited). */
+  nameExists(name: string, excludeId?: number): Observable<boolean> {
+    let params = new HttpParams().set('name', name);
+    if (excludeId != null) {
+      params = params.set('excludeId', excludeId);
+    }
+    return this.http.get<boolean>(`${this.apiUrl}/name-exists`, { params });
   }
 }

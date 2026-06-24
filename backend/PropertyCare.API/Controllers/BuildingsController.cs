@@ -8,6 +8,7 @@ using PropertyCare.Application.Modules.Facilities.Buildings.Commands.Delete;
 using PropertyCare.Application.Modules.Facilities.Buildings.Commands.Update;
 using PropertyCare.Application.Modules.Facilities.Buildings.Queries.List;
 using PropertyCare.Application.Modules.Facilities.Buildings.Queries.Locations;
+using PropertyCare.Application.Modules.Facilities.Buildings.Queries.NameExists;
 using PropertyCare.Domain.Entities.Identity;
 
 namespace PropertyCare.API.Controllers;
@@ -30,6 +31,15 @@ public sealed class BuildingsController(ISender sender) : ControllerBase
     public async Task<IReadOnlyList<BuildingLocationDto>> Locations(CancellationToken ct)
     {
         return await sender.Send(new ListBuildingLocationsQuery(), ct);
+    }
+
+    /// <summary>Whether the given building name is already taken (async form validation).</summary>
+    [HttpGet("name-exists")]
+    public async Task<bool> NameExists(
+        [FromQuery] string name, [FromQuery] int? excludeId, CancellationToken ct)
+    {
+        return await sender.Send(
+            new BuildingNameExistsQuery { Name = name ?? string.Empty, ExcludeId = excludeId }, ct);
     }
 
     /// <summary>Creates a building.</summary>

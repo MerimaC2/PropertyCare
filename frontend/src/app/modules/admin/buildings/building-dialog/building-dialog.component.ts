@@ -15,6 +15,8 @@ import {
   BuildingDto,
   SaveBuildingCommand
 } from '../../../../api-services/buildings/buildings-api.models';
+import { BuildingsApiService } from '../../../../api-services/buildings/buildings-api.service';
+import { buildingNameTakenValidator } from './building-name.validator';
 
 export interface BuildingDialogData {
   building: BuildingDto | null;
@@ -41,11 +43,16 @@ export class BuildingDialogComponent implements AfterViewInit, OnDestroy {
     public dialogRef: MatDialogRef<BuildingDialogComponent, SaveBuildingCommand>,
     @Inject(MAT_DIALOG_DATA) public data: BuildingDialogData,
     formBuilder: FormBuilder,
+    private buildingsApi: BuildingsApiService,
     private cdr: ChangeDetectorRef
   ) {
     const b = data.building;
     this.form = formBuilder.group({
-      name: [b?.name ?? '', [Validators.required, Validators.maxLength(120)]],
+      name: [
+        b?.name ?? '',
+        [Validators.required, Validators.maxLength(120)],
+        [buildingNameTakenValidator(this.buildingsApi, b?.id)]
+      ],
       buildingTypeId: [b?.buildingTypeId ?? null, Validators.required],
       address: [b?.address ?? '', Validators.maxLength(200)],
       latitude: [b?.latitude ?? null, [Validators.min(-90), Validators.max(90)]],
