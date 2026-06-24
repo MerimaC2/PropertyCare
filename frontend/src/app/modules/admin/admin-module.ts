@@ -4,9 +4,17 @@ import { AdminRoutingModule } from './admin-routing-module';
 import { AdminLayoutComponent } from './layout/admin-layout.component';
 import { TriageComponent } from './triage/triage.component';
 import { AssignDialogComponent } from './triage/assign-dialog/assign-dialog.component';
+import { BuildingsComponent } from './buildings/buildings.component';
+import { BuildingDialogComponent } from './buildings/building-dialog/building-dialog.component';
 
 @NgModule({
-  declarations: [AdminLayoutComponent, TriageComponent, AssignDialogComponent],
+  declarations: [
+    AdminLayoutComponent,
+    TriageComponent,
+    AssignDialogComponent,
+    BuildingsComponent,
+    BuildingDialogComponent
+  ],
   imports: [SharedModule, AdminRoutingModule]
 })
 export class AdminModule {}

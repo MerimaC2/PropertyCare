@@ -1,0 +1,18 @@
+.building-form {
+  display: flex;
+  flex-direction: column;
+  min-width: 360px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.coords {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
