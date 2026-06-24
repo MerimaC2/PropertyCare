@@ -4,6 +4,7 @@ import { AdminLayoutComponent } from './layout/admin-layout.component';
 import { TriageComponent } from './triage/triage.component';
 import { BuildingsComponent } from './buildings/buildings.component';
 import { BuildingsMapComponent } from './map/buildings-map.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [
   {
@@ -11,6 +12,7 @@ const routes: Routes = [
     component: AdminLayoutComponent,
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'triage' },
+      { path: 'dashboard', component: DashboardComponent },
       { path: 'triage', component: TriageComponent },
       { path: 'buildings', component: BuildingsComponent },
       { path: 'map', component: BuildingsMapComponent }
