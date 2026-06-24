@@ -8,6 +8,8 @@ import { BuildingsComponent } from './buildings/buildings.component';
 import { BuildingDialogComponent } from './buildings/building-dialog/building-dialog.component';
 import { BuildingsMapComponent } from './map/buildings-map.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { UnitsComponent } from './units/units.component';
+import { UnitDialogComponent } from './units/unit-dialog/unit-dialog.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     BuildingsComponent,
     BuildingDialogComponent,
     BuildingsMapComponent,
-    DashboardComponent
+    DashboardComponent,
+    UnitsComponent,
+    UnitDialogComponent
   ],
   imports: [SharedModule, AdminRoutingModule]
 })
