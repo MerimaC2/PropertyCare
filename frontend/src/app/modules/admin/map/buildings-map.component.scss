@@ -1,0 +1,8 @@
+@use '../../../shared/styles/page' as *;
+
+.map-container {
+  height: 70vh;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(15, 40, 84, 0.06);
+}

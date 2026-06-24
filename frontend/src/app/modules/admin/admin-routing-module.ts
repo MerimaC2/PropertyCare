@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AdminLayoutComponent } from './layout/admin-layout.component';
 import { TriageComponent } from './triage/triage.component';
 import { BuildingsComponent } from './buildings/buildings.component';
+import { BuildingsMapComponent } from './map/buildings-map.component';
 
 const routes: Routes = [
   {
@@ -11,7 +12,8 @@ const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'triage' },
       { path: 'triage', component: TriageComponent },
-      { path: 'buildings', component: BuildingsComponent }
+      { path: 'buildings', component: BuildingsComponent },
+      { path: 'map', component: BuildingsMapComponent }
     ]
   }
 ];

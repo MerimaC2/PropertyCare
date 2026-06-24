@@ -6,6 +6,7 @@ import { TriageComponent } from './triage/triage.component';
 import { AssignDialogComponent } from './triage/assign-dialog/assign-dialog.component';
 import { BuildingsComponent } from './buildings/buildings.component';
 import { BuildingDialogComponent } from './buildings/building-dialog/building-dialog.component';
+import { BuildingsMapComponent } from './map/buildings-map.component';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { BuildingDialogComponent } from './buildings/building-dialog/building-di
     TriageComponent,
     AssignDialogComponent,
     BuildingsComponent,
-    BuildingDialogComponent
+    BuildingDialogComponent,
+    BuildingsMapComponent
   ],
   imports: [SharedModule, AdminRoutingModule]
 })

@@ -7,6 +7,7 @@ using PropertyCare.Application.Modules.Facilities.Buildings.Commands.Create;
 using PropertyCare.Application.Modules.Facilities.Buildings.Commands.Delete;
 using PropertyCare.Application.Modules.Facilities.Buildings.Commands.Update;
 using PropertyCare.Application.Modules.Facilities.Buildings.Queries.List;
+using PropertyCare.Application.Modules.Facilities.Buildings.Queries.Locations;
 using PropertyCare.Domain.Entities.Identity;
 
 namespace PropertyCare.API.Controllers;
@@ -22,6 +23,13 @@ public sealed class BuildingsController(ISender sender) : ControllerBase
         [FromQuery] ListBuildingsQuery query, CancellationToken ct)
     {
         return await sender.Send(query, ct);
+    }
+
+    /// <summary>All buildings that have coordinates, for the interactive map.</summary>
+    [HttpGet("locations")]
+    public async Task<IReadOnlyList<BuildingLocationDto>> Locations(CancellationToken ct)
+    {
+        return await sender.Send(new ListBuildingLocationsQuery(), ct);
     }
 
     /// <summary>Creates a building.</summary>

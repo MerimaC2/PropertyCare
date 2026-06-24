@@ -1,6 +1,15 @@
-import { Component, Inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import * as L from 'leaflet';
 import { LookupItemDto } from '../../../../api-services/lookups/lookups-api.models';
 import {
   BuildingDto,
@@ -12,20 +21,27 @@ export interface BuildingDialogData {
   buildingTypes: LookupItemDto[];
 }
 
-/** Create/edit form for a building, including its optional map coordinates. */
+/** Create/edit form for a building, with a map to pick its coordinates. */
 @Component({
   selector: 'app-building-dialog',
   templateUrl: './building-dialog.component.html',
   styleUrls: ['./building-dialog.component.scss'],
   standalone: false
 })
-export class BuildingDialogComponent {
+export class BuildingDialogComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('pickerContainer', { static: true })
+  pickerContainer!: ElementRef<HTMLDivElement>;
+
   form: FormGroup;
+
+  private map?: L.Map;
+  private marker?: L.CircleMarker;
 
   constructor(
     public dialogRef: MatDialogRef<BuildingDialogComponent, SaveBuildingCommand>,
     @Inject(MAT_DIALOG_DATA) public data: BuildingDialogData,
-    formBuilder: FormBuilder
+    formBuilder: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     const b = data.building;
     this.form = formBuilder.group({
@@ -39,6 +55,50 @@ export class BuildingDialogComponent {
 
   get isEdit(): boolean {
     return this.data.building !== null;
+  }
+
+  ngAfterViewInit(): void {
+    const lat = this.form.value.latitude as number | null;
+    const lng = this.form.value.longitude as number | null;
+    const hasCoords = lat != null && lng != null;
+
+    this.map = L.map(this.pickerContainer.nativeElement, {
+      center: hasCoords ? [lat!, lng!] : [43.9, 17.7],
+      zoom: hasCoords ? 14 : 7
+    });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(this.map);
+
+    if (hasCoords) {
+      this.setMarker(lat!, lng!);
+    }
+
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      const newLat = Math.round(e.latlng.lat * 1e6) / 1e6;
+      const newLng = Math.round(e.latlng.lng * 1e6) / 1e6;
+      this.form.patchValue({ latitude: newLat, longitude: newLng });
+      this.setMarker(newLat, newLng);
+      this.cdr.markForCheck();
+    });
+
+    // The dialog animates in, so the container has no size yet — recalc once open.
+    this.dialogRef.afterOpened().subscribe(() => this.map?.invalidateSize());
+  }
+
+  private setMarker(lat: number, lng: number): void {
+    if (this.marker) {
+      this.marker.setLatLng([lat, lng]);
+    } else {
+      this.marker = L.circleMarker([lat, lng], {
+        radius: 9,
+        color: '#1565c0',
+        weight: 2,
+        fillColor: '#1565c0',
+        fillOpacity: 0.6
+      }).addTo(this.map!);
+    }
   }
 
   onCancel(): void {
@@ -58,5 +118,9 @@ export class BuildingDialogComponent {
       latitude: v.latitude ?? null,
       longitude: v.longitude ?? null
     });
+  }
+
+  ngOnDestroy(): void {
+    this.map?.remove();
   }
 }

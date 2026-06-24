@@ -1,0 +1,10 @@
+<div class="page-header">
+  <div>
+    <h1>Map</h1>
+    <p>{{ count }} building(s) with a location.</p>
+  </div>
+</div>
+
+<mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+<div #mapContainer class="map-container"></div>

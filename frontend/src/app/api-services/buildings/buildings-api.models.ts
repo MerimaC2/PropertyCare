@@ -24,3 +24,12 @@ export interface SaveBuildingCommand {
   latitude?: number | null;
   longitude?: number | null;
 }
+
+/** A building that has coordinates, for the interactive map. */
+export interface BuildingLocationDto {
+  id: number;
+  name: string;
+  address?: string | null;
+  latitude: number;
+  longitude: number;
+}

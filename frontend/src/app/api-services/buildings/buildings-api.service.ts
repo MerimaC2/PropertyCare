@@ -4,7 +4,12 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { buildHttpParams } from '../../core/models/build-http-params';
 import { PageResult } from '../../core/models/paging/page-result';
-import { BuildingDto, ListBuildingsQuery, SaveBuildingCommand } from './buildings-api.models';
+import {
+  BuildingDto,
+  BuildingLocationDto,
+  ListBuildingsQuery,
+  SaveBuildingCommand
+} from './buildings-api.models';
 
 @Injectable({ providedIn: 'root' })
 export class BuildingsApiService {
@@ -27,5 +32,9 @@ export class BuildingsApiService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  listLocations(): Observable<BuildingLocationDto[]> {
+    return this.http.get<BuildingLocationDto[]>(`${this.apiUrl}/locations`);
   }
 }
