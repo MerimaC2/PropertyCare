@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>Log work</h2>
+
+<mat-dialog-content>
+  <p class="subtitle">{{ data.requestTitle }}</p>
+  <form [formGroup]="form" class="log-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Note</mat-label>
+      <textarea matInput formControlName="note" rows="3"></textarea>
+      <mat-error *ngIf="form.controls['note'].hasError('required')">Note is required.</mat-error>
+      <mat-error *ngIf="form.controls['note'].hasError('maxlength')">Note is too long.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Time spent (minutes)</mat-label>
+      <input matInput type="number" min="1" formControlName="minutesSpent" />
+      <mat-error *ngIf="form.controls['minutesSpent'].hasError('required')">
+        Time spent is required.
+      </mat-error>
+      <mat-error *ngIf="form.controls['minutesSpent'].hasError('min')">
+        Must be greater than 0.
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
+  <button mat-flat-button color="primary" type="button" (click)="onSubmit()">Save</button>
+</mat-dialog-actions>

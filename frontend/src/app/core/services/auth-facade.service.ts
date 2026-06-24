@@ -85,6 +85,8 @@ export class AuthFacadeService {
     switch (role) {
       case APP_ROLES.administrator:
         return '/admin/triage';
+      case APP_ROLES.technician:
+        return '/technician/interventions';
       case APP_ROLES.reporter:
         return '/reporter/my-requests';
       default:
