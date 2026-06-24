@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit asset' : 'New asset' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="asset-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" />
+      <mat-error *ngIf="form.controls['name'].hasError('required')">Name is required.</mat-error>
+      <mat-error *ngIf="form.controls['name'].hasError('maxlength')">Name is too long.</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Asset type</mat-label>
+      <mat-select formControlName="assetTypeId">
+        <mat-option *ngFor="let t of data.assetTypes" [value]="t.id">{{ t.name }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.controls['assetTypeId'].hasError('required')">
+        Asset type is required.
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
+  <button mat-flat-button color="primary" type="button" (click)="onSubmit()">
+    {{ isEdit ? 'Save' : 'Create' }}
+  </button>
+</mat-dialog-actions>

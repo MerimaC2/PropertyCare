@@ -1,0 +1,51 @@
+<div class="page-header">
+  <div>
+    <h1>Asset types</h1>
+    <p>Categories of equipment with their default SLA.</p>
+  </div>
+  <button mat-flat-button color="primary" (click)="openCreate()">
+    <mat-icon>add</mat-icon>
+    New asset type
+  </button>
+</div>
+
+<mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+<div class="table-container" *ngIf="items.length > 0">
+  <table mat-table [dataSource]="items">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let t">{{ t.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="sla">
+      <th mat-header-cell *matHeaderCellDef>Default SLA (h)</th>
+      <td mat-cell *matCellDef="let t">{{ t.defaultSlaHours ?? '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="assets">
+      <th mat-header-cell *matHeaderCellDef>Assets</th>
+      <td mat-cell *matCellDef="let t">{{ t.assetCount }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let t" class="actions-cell">
+        <button mat-icon-button (click)="openEdit(t)" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="confirmDelete(t)" matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>
+
+<div class="no-data" *ngIf="!isLoading && items.length === 0">
+  <mat-icon>category</mat-icon>
+  <p>No asset types yet.</p>
+</div>

@@ -1,0 +1,72 @@
+<div class="page-header">
+  <div>
+    <h1>Assets</h1>
+    <p>Manage the equipment of a unit.</p>
+  </div>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!selectedUnitId"
+    (click)="openCreate()"
+  >
+    <mat-icon>add</mat-icon>
+    New asset
+  </button>
+</div>
+
+<div class="filter-bar">
+  <mat-form-field appearance="outline">
+    <mat-label>Building</mat-label>
+    <mat-select [formControl]="buildingControl">
+      <mat-option *ngFor="let b of buildings" [value]="b.id">{{ b.name }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Unit</mat-label>
+    <mat-select [formControl]="unitControl">
+      <mat-option *ngFor="let u of units" [value]="u.id">{{ u.label }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+<div class="table-container" *ngIf="selectedUnitId && assets.length > 0">
+  <table mat-table [dataSource]="assets">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let a">{{ a.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <td mat-cell *matCellDef="let a">{{ a.assetTypeName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let a" class="actions-cell">
+        <button mat-icon-button (click)="openEdit(a)" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="confirmDelete(a)" matTooltip="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>
+
+<div class="no-data" *ngIf="!isLoading && selectedUnitId && assets.length === 0">
+  <mat-icon>build</mat-icon>
+  <p>This unit has no assets yet.</p>
+</div>
+
+<div class="no-data" *ngIf="!selectedUnitId">
+  <mat-icon>meeting_room</mat-icon>
+  <p>Select a building and unit to manage its assets.</p>
+</div>

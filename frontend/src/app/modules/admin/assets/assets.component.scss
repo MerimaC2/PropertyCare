@@ -1,0 +1,15 @@
+@use '../../../shared/styles/page' as *;
+
+.filter-bar mat-form-field {
+  min-width: 220px;
+}
+
+table {
+  width: 100%;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+  width: 110px;
+}

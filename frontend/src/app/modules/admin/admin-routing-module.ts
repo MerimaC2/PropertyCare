@@ -6,6 +6,8 @@ import { BuildingsComponent } from './buildings/buildings.component';
 import { BuildingsMapComponent } from './map/buildings-map.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { UnitsComponent } from './units/units.component';
+import { AssetTypesComponent } from './asset-types/asset-types.component';
+import { AssetsComponent } from './assets/assets.component';
 
 const routes: Routes = [
   {
@@ -17,6 +19,8 @@ const routes: Routes = [
       { path: 'triage', component: TriageComponent },
       { path: 'buildings', component: BuildingsComponent },
       { path: 'units', component: UnitsComponent },
+      { path: 'assets', component: AssetsComponent },
+      { path: 'asset-types', component: AssetTypesComponent },
       { path: 'map', component: BuildingsMapComponent }
     ]
   }

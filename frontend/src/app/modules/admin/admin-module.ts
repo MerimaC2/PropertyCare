@@ -10,6 +10,10 @@ import { BuildingsMapComponent } from './map/buildings-map.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { UnitsComponent } from './units/units.component';
 import { UnitDialogComponent } from './units/unit-dialog/unit-dialog.component';
+import { AssetTypesComponent } from './asset-types/asset-types.component';
+import { AssetTypeDialogComponent } from './asset-types/asset-type-dialog/asset-type-dialog.component';
+import { AssetsComponent } from './assets/assets.component';
+import { AssetDialogComponent } from './assets/asset-dialog/asset-dialog.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +25,11 @@ import { UnitDialogComponent } from './units/unit-dialog/unit-dialog.component';
     BuildingsMapComponent,
     DashboardComponent,
     UnitsComponent,
-    UnitDialogComponent
+    UnitDialogComponent,
+    AssetTypesComponent,
+    AssetTypeDialogComponent,
+    AssetsComponent,
+    AssetDialogComponent
   ],
   imports: [SharedModule, AdminRoutingModule]
 })
