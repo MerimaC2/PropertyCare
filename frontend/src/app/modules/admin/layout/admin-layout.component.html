@@ -26,6 +26,15 @@
 
   <span class="spacer"></span>
 
+  <button
+    mat-icon-button
+    (click)="theme.toggle()"
+    matTooltip="Toggle theme"
+    aria-label="Toggle theme"
+  >
+    <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+
   <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
     <mat-icon>account_circle</mat-icon>
     {{ user?.fullName }}

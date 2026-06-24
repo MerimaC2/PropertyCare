@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthFacadeService, CurrentUser } from '../../../core/services/auth-facade.service';
+import { ThemeService } from '../../../core/services/theme.service';
 
 /** Toolbar + router outlet shell for the administrator area. */
 @Component({
@@ -9,7 +10,10 @@ import { AuthFacadeService, CurrentUser } from '../../../core/services/auth-faca
   standalone: false
 })
 export class AdminLayoutComponent {
-  constructor(private authFacade: AuthFacadeService) {}
+  constructor(
+    private authFacade: AuthFacadeService,
+    public theme: ThemeService
+  ) {}
 
   get user(): CurrentUser | null {
     return this.authFacade.getCurrentUser();

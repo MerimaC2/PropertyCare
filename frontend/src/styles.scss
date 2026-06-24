@@ -42,6 +42,13 @@ body {
   background-color: #f7f8fc;
 }
 
+// Dark theme: switch Material's system color tokens and the app background.
+// Material components and anything using `--mat-sys-*` variables adapt automatically.
+body.dark-theme {
+  color-scheme: dark;
+  background-color: #121317;
+}
+
 a {
   color: inherit;
 }

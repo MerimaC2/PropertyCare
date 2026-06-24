@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthFacadeService, CurrentUser } from '../../../core/services/auth-facade.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { NotificationsStateService } from '../notifications/notifications-state.service';
 
 /** Toolbar + router outlet shell for the reporter area. */
@@ -12,7 +13,8 @@ import { NotificationsStateService } from '../notifications/notifications-state.
 export class ReporterLayoutComponent implements OnInit {
   constructor(
     private authFacade: AuthFacadeService,
-    public notifications: NotificationsStateService
+    public notifications: NotificationsStateService,
+    public theme: ThemeService
   ) {}
 
   ngOnInit(): void {

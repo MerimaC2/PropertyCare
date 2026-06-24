@@ -17,6 +17,15 @@
 
   <span class="spacer"></span>
 
+  <button
+    mat-icon-button
+    (click)="theme.toggle()"
+    matTooltip="Toggle theme"
+    aria-label="Toggle theme"
+  >
+    <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+
   <a
     mat-icon-button
     routerLink="notifications"

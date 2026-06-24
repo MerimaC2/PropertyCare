@@ -36,8 +36,8 @@
   gap: 12px;
   width: 100%;
   text-align: left;
-  background: #fff;
-  border: 1px solid #e7eaf0;
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
   border-radius: 10px;
   padding: 14px 16px;
   cursor: pointer;
@@ -45,17 +45,16 @@
   transition: background 0.15s ease;
 
   &:hover {
-    background: #f7f9fc;
+    background: var(--mat-sys-surface-container);
   }
 
   &.unread {
-    border-left: 3px solid #1565c0;
-    background: #f3f8ff;
+    border-left: 3px solid var(--mat-sys-primary);
   }
 }
 
 .notif-icon {
-  color: #5e6b85;
+  color: var(--mat-sys-on-surface-variant);
   margin-top: 2px;
 }
 
@@ -76,14 +75,14 @@
 }
 
 .notif-date {
-  color: #8a93a3;
+  color: var(--mat-sys-on-surface-variant);
   font-size: 0.8rem;
   white-space: nowrap;
 }
 
 .notif-message {
   margin: 4px 0 0;
-  color: #5b6472;
+  color: var(--mat-sys-on-surface-variant);
   font-size: 0.9rem;
 }
 
