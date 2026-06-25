@@ -1,11 +1,29 @@
 <mat-toolbar color="primary" class="layout-toolbar">
+  <button
+    *ngIf="layout.isHandset()"
+    mat-icon-button
+    [matMenuTriggerFor]="navMenu"
+    aria-label="Open navigation menu"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #navMenu="matMenu">
+    <a mat-menu-item routerLink="dashboard"><mat-icon>dashboard</mat-icon><span>Dashboard</span></a>
+    <a mat-menu-item routerLink="triage"><mat-icon>assignment_ind</mat-icon><span>Triage</span></a>
+    <a mat-menu-item routerLink="buildings"><mat-icon>domain</mat-icon><span>Buildings</span></a>
+    <a mat-menu-item routerLink="units"><mat-icon>meeting_room</mat-icon><span>Units</span></a>
+    <a mat-menu-item routerLink="assets"><mat-icon>build</mat-icon><span>Assets</span></a>
+    <a mat-menu-item routerLink="asset-types"><mat-icon>category</mat-icon><span>Types</span></a>
+    <a mat-menu-item routerLink="map"><mat-icon>map</mat-icon><span>Map</span></a>
+  </mat-menu>
+
   <div class="brand" routerLink="/">
     <mat-icon>home_repair_service</mat-icon>
     <span>PropertyCare</span>
     <span class="brand__badge">Admin</span>
   </div>
 
-  <nav class="nav-links">
+  <nav class="nav-links" *ngIf="!layout.isHandset()">
     <a mat-button routerLink="dashboard" routerLinkActive="active-link">
       <mat-icon>dashboard</mat-icon>
       Dashboard
@@ -49,7 +67,7 @@
 
   <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
     <mat-icon>account_circle</mat-icon>
-    {{ user?.fullName }}
+    <span *ngIf="!layout.isHandset()">{{ user?.fullName }}</span>
   </button>
   <mat-menu #userMenu="matMenu">
     <div class="user-menu-info" mat-menu-item disabled>
