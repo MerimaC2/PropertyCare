@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthFacadeService, CurrentUser } from '../../../core/services/auth-facade.service';
+import { NotificationsStateService } from '../notifications/notifications-state.service';
 
 /** Toolbar + router outlet shell for the reporter area. */
 @Component({
@@ -8,8 +9,15 @@ import { AuthFacadeService, CurrentUser } from '../../../core/services/auth-faca
   styleUrls: ['./reporter-layout.component.scss'],
   standalone: false
 })
-export class ReporterLayoutComponent {
-  constructor(private authFacade: AuthFacadeService) {}
+export class ReporterLayoutComponent implements OnInit {
+  constructor(
+    private authFacade: AuthFacadeService,
+    public notifications: NotificationsStateService
+  ) {}
+
+  ngOnInit(): void {
+    this.notifications.refresh();
+  }
 
   get user(): CurrentUser | null {
     return this.authFacade.getCurrentUser();

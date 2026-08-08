@@ -33,6 +33,7 @@ public class DatabaseContext : DbContext, IAppDbContext
     public DbSet<RequestPriorityEntity> RequestPriorities => Set<RequestPriorityEntity>();
     public DbSet<RequestStatusEntity> RequestStatuses => Set<RequestStatusEntity>();
     public DbSet<MaintenanceRequestEntity> MaintenanceRequests => Set<MaintenanceRequestEntity>();
+    public DbSet<RequestImageEntity> RequestImages => Set<RequestImageEntity>();
     public DbSet<RequestCommentEntity> RequestComments => Set<RequestCommentEntity>();
     public DbSet<RequestStatusHistoryEntity> RequestStatusHistories => Set<RequestStatusHistoryEntity>();
     public DbSet<WorkOrderStatusEntity> WorkOrderStatuses => Set<WorkOrderStatusEntity>();

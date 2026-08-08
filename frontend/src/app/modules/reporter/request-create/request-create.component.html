@@ -88,18 +88,61 @@
       </mat-form-field>
     </div>
 
+    <div class="photos-section">
+      <span class="photos-label">Photos (optional)</span>
+      <div class="photos-grid">
+        <div class="photo-thumb" *ngFor="let photo of photos; let i = index">
+          <img [src]="photo.url" [alt]="photo.file.name" />
+          <button
+            mat-icon-button
+            type="button"
+            class="remove-btn"
+            (click)="removePhoto(i)"
+            [disabled]="isUploading"
+            aria-label="Remove photo"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <button
+          mat-stroked-button
+          type="button"
+          class="add-photo-btn"
+          (click)="fileInput.click()"
+          [disabled]="isUploading"
+        >
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>Add photo</span>
+        </button>
+      </div>
+      <input
+        #fileInput
+        type="file"
+        hidden
+        accept="image/jpeg,image/png,image/webp"
+        (change)="onFileSelected($event)"
+      />
+      <p class="photos-hint">Pick an image and crop it before it's added. JPEG, PNG or WebP, up to 5 MB each.</p>
+    </div>
+
     <div class="api-error" *ngIf="apiError">
       <mat-icon>error_outline</mat-icon>
       <span>{{ apiError }}</span>
     </div>
 
+    <div class="upload-progress" *ngIf="isUploading">
+      <span>Uploading photos… {{ uploadProgress }}%</span>
+      <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+    </div>
+
     <div class="form-actions">
       <a mat-stroked-button routerLink="../my-requests">Cancel</a>
       <button mat-flat-button color="primary" type="submit" [disabled]="isLoading">
-        {{ isLoading ? 'Submitting...' : 'Submit request' }}
+        {{ isUploading ? 'Uploading...' : (isLoading ? 'Submitting...' : 'Submit request') }}
       </button>
     </div>
 
-    <mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+    <mat-progress-bar *ngIf="isLoading && !isUploading" mode="indeterminate"></mat-progress-bar>
   </form>
 </mat-card>

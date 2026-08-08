@@ -24,6 +24,7 @@ public interface IAppDbContext
     DbSet<RequestPriorityEntity> RequestPriorities { get; }
     DbSet<RequestStatusEntity> RequestStatuses { get; }
     DbSet<MaintenanceRequestEntity> MaintenanceRequests { get; }
+    DbSet<RequestImageEntity> RequestImages { get; }
     DbSet<RequestCommentEntity> RequestComments { get; }
     DbSet<RequestStatusHistoryEntity> RequestStatusHistories { get; }
     DbSet<WorkOrderStatusEntity> WorkOrderStatuses { get; }

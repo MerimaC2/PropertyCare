@@ -611,6 +611,51 @@ namespace PropertyCare.Infrastructure.Migrations
                     b.ToTable("RequestComments", (string)null);
                 });
 
+            modelBuilder.Entity("PropertyCare.Domain.Entities.Maintenance.RequestImageEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RelativePath")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<int>("RequestId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestId");
+
+                    b.ToTable("RequestImages", (string)null);
+                });
+
             modelBuilder.Entity("PropertyCare.Domain.Entities.Maintenance.RequestPriorityEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -1113,6 +1158,9 @@ namespace PropertyCare.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -1374,6 +1422,17 @@ namespace PropertyCare.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PropertyCare.Domain.Entities.Maintenance.RequestImageEntity", b =>
+                {
+                    b.HasOne("PropertyCare.Domain.Entities.Maintenance.MaintenanceRequestEntity", "Request")
+                        .WithMany("Images")
+                        .HasForeignKey("RequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Request");
+                });
+
             modelBuilder.Entity("PropertyCare.Domain.Entities.Maintenance.RequestPriorityEntity", b =>
                 {
                     b.HasOne("PropertyCare.Domain.Entities.Identity.TenantEntity", "Tenant")
@@ -1582,6 +1641,8 @@ namespace PropertyCare.Infrastructure.Migrations
             modelBuilder.Entity("PropertyCare.Domain.Entities.Maintenance.MaintenanceRequestEntity", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Images");
 
                     b.Navigation("StatusHistory");
 

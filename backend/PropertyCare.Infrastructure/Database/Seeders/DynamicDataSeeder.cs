@@ -118,12 +118,33 @@ public class DynamicDataSeeder : IDatabaseSeeder
             CreatedAtUtc = nowUtc.AddDays(-19).AddHours(3)
         });
 
-        // --- A few notifications ---
+        // --- A few notifications (mixed types and read/unread, so the notification center has data to filter) ---
         _ctx.Notifications.AddRange(
             new NotificationEntity
             {
                 TenantId = TenantId,
                 User = reporter1,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "You can report a fault any time and track its progress here.",
+                IsRead = true,
+                CreatedAtUtc = nowUtc.AddDays(-35)
+            },
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = reporter1,
+                Type = NotificationType.RequestSubmitted,
+                Title = "Request submitted",
+                Message = "Your request 'Air conditioner is leaking' was submitted and is awaiting triage.",
+                IsRead = true,
+                CreatedAtUtc = nowUtc.AddDays(-2)
+            },
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = reporter1,
+                Type = NotificationType.Assigned,
                 Title = "Request assigned",
                 Message = "Your request 'Elevator stuck between floors' was assigned to a technician.",
                 IsRead = false,
@@ -133,10 +154,31 @@ public class DynamicDataSeeder : IDatabaseSeeder
             {
                 TenantId = TenantId,
                 User = reporter1,
+                Type = NotificationType.Completed,
                 Title = "Request completed",
                 Message = "Your request 'Flickering light in hallway' was completed.",
                 IsRead = true,
                 CreatedAtUtc = nowUtc.AddDays(-19)
+            },
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = reporter2,
+                Type = NotificationType.RequestSubmitted,
+                Title = "Request submitted",
+                Message = "Your request 'Charging station sparks' was submitted and is awaiting triage.",
+                IsRead = false,
+                CreatedAtUtc = nowUtc.AddHours(-5)
+            },
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = reporter2,
+                Type = NotificationType.Assigned,
+                Title = "Request assigned",
+                Message = "Your request 'Water heater leaking from valve' was assigned to a technician.",
+                IsRead = false,
+                CreatedAtUtc = nowUtc.AddDays(-3)
             });
 
         // --- Scheduled jobs (job type ids: 1 inspection, 2 preventive) ---

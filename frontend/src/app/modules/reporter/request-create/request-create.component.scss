@@ -40,3 +40,81 @@
     height: 20px;
   }
 }
+
+.photos-section {
+  margin: 4px 0 16px;
+}
+
+.photos-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.photos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.photo-thumb {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.add-photo-btn {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.1;
+}
+
+.photos-hint {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.55);
+  margin-top: 6px;
+}
+
+.upload-progress {
+  margin-bottom: 12px;
+
+  span {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    color: rgba(0, 0, 0, 0.7);
+  }
+}
