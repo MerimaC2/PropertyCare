@@ -1,10 +1,23 @@
 <mat-toolbar color="primary" class="layout-toolbar">
+  <button
+    *ngIf="layout.isHandset()"
+    mat-icon-button
+    [matMenuTriggerFor]="navMenu"
+    aria-label="Open navigation menu"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #navMenu="matMenu">
+    <a mat-menu-item routerLink="my-requests"><mat-icon>list_alt</mat-icon><span>My requests</span></a>
+    <a mat-menu-item routerLink="new-request"><mat-icon>add_circle_outline</mat-icon><span>New request</span></a>
+  </mat-menu>
+
   <div class="brand" routerLink="/">
     <mat-icon>home_repair_service</mat-icon>
     <span>PropertyCare</span>
   </div>
 
-  <nav class="nav-links">
+  <nav class="nav-links" *ngIf="!layout.isHandset()">
     <a mat-button routerLink="my-requests" routerLinkActive="active-link">
       <mat-icon>list_alt</mat-icon>
       My requests
@@ -16,6 +29,15 @@
   </nav>
 
   <span class="spacer"></span>
+
+  <button
+    mat-icon-button
+    (click)="theme.toggle()"
+    matTooltip="Toggle theme"
+    aria-label="Toggle theme"
+  >
+    <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
 
   <a
     mat-icon-button
@@ -34,7 +56,7 @@
 
   <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
     <mat-icon>account_circle</mat-icon>
-    {{ user?.fullName }}
+    <span *ngIf="!layout.isHandset()">{{ user?.fullName }}</span>
   </button>
   <mat-menu #userMenu="matMenu">
     <div class="user-menu-info" mat-menu-item disabled>

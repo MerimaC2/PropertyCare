@@ -1,0 +1,26 @@
+<div class="page-header">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Overview of maintenance requests.</p>
+  </div>
+</div>
+
+<div class="summary-cards">
+  <mat-card class="summary-card">
+    <span class="summary-value">{{ total }}</span>
+    <span class="summary-label">Total requests</span>
+  </mat-card>
+</div>
+
+<mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+<div class="charts">
+  <mat-card class="chart-card">
+    <h2>By status</h2>
+    <div class="chart-wrap"><canvas #statusCanvas></canvas></div>
+  </mat-card>
+  <mat-card class="chart-card">
+    <h2>By priority</h2>
+    <div class="chart-wrap"><canvas #priorityCanvas></canvas></div>
+  </mat-card>
+</div>

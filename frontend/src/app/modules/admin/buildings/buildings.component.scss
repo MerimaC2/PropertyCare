@@ -1,0 +1,20 @@
+@use '../../../shared/styles/page' as *;
+
+.filter-bar mat-form-field {
+  min-width: 240px;
+}
+
+table {
+  width: 100%;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+  width: 110px;
+}
+
+mat-paginator {
+  margin-top: 12px;
+  border-radius: 12px;
+}

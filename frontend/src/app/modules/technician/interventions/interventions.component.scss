@@ -1,0 +1,82 @@
+@use '../../../shared/styles/page' as *;
+
+.interventions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.intervention-card {
+  padding: 16px 20px;
+  border-radius: 12px;
+}
+
+.intervention-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+}
+
+.head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.status-pill {
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.total {
+  font-weight: 600;
+}
+
+.logs {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container);
+  font-size: 0.9rem;
+}
+
+.log-meta {
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+}
+
+.no-logs {
+  margin-top: 12px;
+}
+
+.card-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}

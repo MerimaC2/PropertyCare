@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { RequestFormLookupsDto, TriageLookupsDto } from './lookups-api.models';
+import { LookupItemDto, RequestFormLookupsDto, TriageLookupsDto } from './lookups-api.models';
 
 @Injectable({ providedIn: 'root' })
 export class LookupsApiService {
@@ -16,5 +16,9 @@ export class LookupsApiService {
 
   getTriageLookups(): Observable<TriageLookupsDto> {
     return this.http.get<TriageLookupsDto>(`${this.apiUrl}/triage`);
+  }
+
+  getBuildingTypes(): Observable<LookupItemDto[]> {
+    return this.http.get<LookupItemDto[]>(`${this.apiUrl}/building-types`);
   }
 }

@@ -14,6 +14,10 @@ public sealed class BuildingEntity : BaseEntity
     public string Name { get; set; } = null!;
     public string? Address { get; set; }
 
+    /// <summary>Optional geographic location, used to plot the building on an interactive map.</summary>
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+
     public ICollection<UnitEntity> Units { get; set; } = new List<UnitEntity>();
 
     public static class Constraints

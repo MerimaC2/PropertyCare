@@ -1,0 +1,56 @@
+<mat-toolbar color="primary" class="layout-toolbar">
+  <button
+    *ngIf="layout.isHandset()"
+    mat-icon-button
+    [matMenuTriggerFor]="navMenu"
+    aria-label="Open navigation menu"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #navMenu="matMenu">
+    <a mat-menu-item routerLink="interventions">
+      <mat-icon>engineering</mat-icon><span>My interventions</span>
+    </a>
+  </mat-menu>
+
+  <div class="brand" routerLink="/">
+    <mat-icon>home_repair_service</mat-icon>
+    <span>PropertyCare</span>
+  </div>
+
+  <nav class="nav-links" *ngIf="!layout.isHandset()">
+    <a mat-button routerLink="interventions" routerLinkActive="active-link">
+      <mat-icon>engineering</mat-icon>
+      My interventions
+    </a>
+  </nav>
+
+  <span class="spacer"></span>
+
+  <button
+    mat-icon-button
+    (click)="theme.toggle()"
+    matTooltip="Toggle theme"
+    aria-label="Toggle theme"
+  >
+    <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+
+  <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+    <mat-icon>account_circle</mat-icon>
+    <span *ngIf="!layout.isHandset()">{{ user?.fullName }}</span>
+  </button>
+  <mat-menu #userMenu="matMenu">
+    <div class="user-menu-info" mat-menu-item disabled>
+      <small>{{ user?.email }} &middot; {{ user?.role }}</small>
+    </div>
+    <button mat-menu-item (click)="onLogout()">
+      <mat-icon>logout</mat-icon>
+      Sign out
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<main class="layout-content">
+  <router-outlet></router-outlet>
+</main>

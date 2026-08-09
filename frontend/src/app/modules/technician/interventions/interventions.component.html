@@ -1,0 +1,43 @@
+<div class="page-header">
+  <div>
+    <h1>My interventions</h1>
+    <p>Your work orders and the work you have logged.</p>
+  </div>
+</div>
+
+<mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+<div class="interventions" *ngIf="items.length > 0">
+  <mat-card class="intervention-card" *ngFor="let item of items">
+    <div class="intervention-head">
+      <div class="head-main">
+        <h2>{{ item.requestTitle }}</h2>
+        <p class="muted">{{ item.buildingName }} &middot; {{ item.createdAtUtc | date: 'short' }}</p>
+      </div>
+      <div class="head-right">
+        <span class="status-pill">{{ item.statusName }}</span>
+        <span class="total">{{ item.totalMinutes }} min</span>
+      </div>
+    </div>
+
+    <div class="logs" *ngIf="item.logs.length > 0">
+      <div class="log" *ngFor="let log of item.logs">
+        <span class="log-note">{{ log.note }}</span>
+        <span class="log-meta">{{ log.minutesSpent }} min &middot; {{ log.createdAtUtc | date: 'short' }}</span>
+      </div>
+    </div>
+    <p class="muted no-logs" *ngIf="item.logs.length === 0">No work logged yet.</p>
+
+    <div class="card-actions">
+      <button mat-stroked-button (click)="addLog(item)">
+        <mat-icon>add</mat-icon>
+        Add work log
+      </button>
+    </div>
+  </mat-card>
+</div>
+
+<div class="no-data" *ngIf="!isLoading && items.length === 0">
+  <mat-icon>engineering</mat-icon>
+  <p>You have no assigned work orders.</p>
+</div>

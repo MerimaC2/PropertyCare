@@ -1,0 +1,11 @@
+@use '../../../shared/styles/page' as *;
+
+table {
+  width: 100%;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+  width: 110px;
+}
