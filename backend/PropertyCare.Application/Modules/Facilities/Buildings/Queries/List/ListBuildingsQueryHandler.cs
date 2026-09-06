@@ -31,6 +31,22 @@ public sealed class ListBuildingsQueryHandler
                 || (b.Address != null && b.Address.Contains(term)));
         }
 
+        if (request.BuildingTypeId.HasValue)
+            query = query.Where(b => b.BuildingTypeId == request.BuildingTypeId);
+
+        if (request.MinUnitCount.HasValue)
+            query = query.Where(b => b.Units.Count(u => !u.IsDeleted) >= request.MinUnitCount);
+
+        if (request.MaxUnitCount.HasValue)
+            query = query.Where(b => b.Units.Count(u => !u.IsDeleted) <= request.MaxUnitCount);
+
+        if (request.HasLocation.HasValue)
+        {
+            query = request.HasLocation.Value
+                ? query.Where(b => b.Latitude != null && b.Longitude != null)
+                : query.Where(b => b.Latitude == null || b.Longitude == null);
+        }
+
         var projected = query
             .OrderBy(b => b.Name)
             .Select(b => new BuildingDto

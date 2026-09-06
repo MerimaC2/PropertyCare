@@ -9,23 +9,48 @@
   </button>
 </div>
 
-<div class="filter-bar">
+<!-- Filters: search, type, minimum and maximum unit count, map location (5 parameters) -->
+<form [formGroup]="filterForm" class="filter-bar" (ngSubmit)="onApplyFilters()">
   <mat-form-field appearance="outline">
     <mat-label>Search</mat-label>
-    <input
-      matInput
-      [formControl]="searchControl"
-      (keyup.enter)="onSearch()"
-      placeholder="Name or address"
-    />
+    <input matInput formControlName="search" placeholder="Name or address" />
   </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Type</mat-label>
+    <mat-select formControlName="buildingTypeId">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option *ngFor="let type of buildingTypes" [value]="type.id">{{ type.name }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="narrow">
+    <mat-label>Units from</mat-label>
+    <input matInput type="number" min="0" formControlName="minUnitCount" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="narrow">
+    <mat-label>Units to</mat-label>
+    <input matInput type="number" min="0" formControlName="maxUnitCount" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Map location</mat-label>
+    <mat-select formControlName="hasLocation">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option [value]="true">Placed on the map</mat-option>
+      <mat-option [value]="false">Not placed yet</mat-option>
+    </mat-select>
+  </mat-form-field>
+
   <div class="filter-actions">
-    <button mat-flat-button color="primary" (click)="onSearch()">
-      <mat-icon>search</mat-icon>
-      Search
+    <button mat-flat-button color="primary" type="submit">
+      <mat-icon>filter_alt</mat-icon>
+      Apply
     </button>
+    <button mat-stroked-button type="button" (click)="onResetFilters()">Reset</button>
   </div>
-</div>
+</form>
 
 <mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
 
@@ -54,7 +79,9 @@
     <ng-container matColumnDef="location">
       <th mat-header-cell *matHeaderCellDef>Location</th>
       <td mat-cell *matCellDef="let b">
-        <span *ngIf="b.latitude != null && b.longitude != null">{{ b.latitude }}, {{ b.longitude }}</span>
+        <span *ngIf="b.latitude != null && b.longitude != null"
+          >{{ b.latitude }}, {{ b.longitude }}</span
+        >
         <span *ngIf="b.latitude == null || b.longitude == null">—</span>
       </td>
     </ng-container>
