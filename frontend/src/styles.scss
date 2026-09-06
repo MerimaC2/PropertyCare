@@ -44,9 +44,29 @@ body {
 
 // Dark theme: switch Material's system color tokens and the app background.
 // Material components and anything using `--mat-sys-*` variables adapt automatically.
+//
+// Material's generated dark neutrals sit near black (surface #121316), which reads as
+// heavy on full-page screens like the request tables. The ramp below lifts every step
+// by roughly the same amount and keeps their order, so elevation still reads correctly
+// and only the overall darkness changes.
 body.dark-theme {
   color-scheme: dark;
-  background-color: #121317;
+
+  --mat-sys-background: #2b2d33;
+  --mat-sys-surface: #2b2d33;
+  --mat-sys-surface-dim: #26282d;
+  --mat-sys-surface-bright: #52545e;
+  --mat-sys-surface-container-lowest: #232529;
+  --mat-sys-surface-container-low: #31333a;
+  --mat-sys-surface-container: #373941;
+  --mat-sys-surface-container-high: #3f414a;
+  --mat-sys-surface-container-highest: #494b55;
+  --mat-sys-surface-variant: #565963;
+
+  // Borders have to come up with the surfaces or they disappear into the cards.
+  --mat-sys-outline-variant: #55585f;
+
+  background-color: var(--mat-sys-surface);
 }
 
 a {
