@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using PropertyCare.Application.Abstractions;
 using PropertyCare.Application.Common.Exceptions;
 using PropertyCare.Domain.Entities.Identity;
@@ -7,21 +8,30 @@ namespace PropertyCare.Application.Modules.Auth.Commands.Login;
 
 public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, LoginCommandDto>
 {
+    /// <summary>
+    /// The one answer given for an unknown account, a disabled account and a wrong password alike.
+    /// Anything more specific would let a caller enumerate which e-mail addresses exist.
+    /// </summary>
+    private const string InvalidCredentials = "Invalid email or password.";
+
     private readonly IAppDbContext _ctx;
     private readonly IJwtTokenService _jwt;
     private readonly IPasswordHasher<AppUserEntity> _hasher;
     private readonly TimeProvider _clock;
+    private readonly ILogger<LoginCommandHandler> _logger;
 
     public LoginCommandHandler(
         IAppDbContext ctx,
         IJwtTokenService jwt,
         IPasswordHasher<AppUserEntity> hasher,
-        TimeProvider clock)
+        TimeProvider clock,
+        ILogger<LoginCommandHandler> logger)
     {
         _ctx = ctx;
         _jwt = jwt;
         _hasher = hasher;
         _clock = clock;
+        _logger = logger;
     }
 
     public async Task<LoginCommandDto> Handle(LoginCommand request, CancellationToken ct)
@@ -30,12 +40,30 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, LoginCom
 
         var user = await _ctx.Users
             .Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.Email == email && u.IsActive && !u.IsDeleted, ct)
-            ?? throw new NotFoundException("User not found or disabled.");
+            .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted, ct);
+
+        if (user is null)
+        {
+            // Hash anyway, so an unknown address does not answer measurably faster than a wrong
+            // password and give the same information away through timing.
+            _hasher.HashPassword(new AppUserEntity(), request.Password);
+
+            _logger.LogWarning("Login rejected: no account for {Email}.", email);
+            throw new UnauthorizedException(InvalidCredentials);
+        }
+
+        if (!user.IsActive)
+        {
+            _logger.LogWarning("Login rejected: account {UserId} is disabled.", user.Id);
+            throw new UnauthorizedException(InvalidCredentials);
+        }
 
         var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
         if (result == PasswordVerificationResult.Failed)
-            throw new ConflictException("Invalid email or password.");
+        {
+            _logger.LogWarning("Login rejected: wrong password for account {UserId}.", user.Id);
+            throw new UnauthorizedException(InvalidCredentials);
+        }
 
         var tokenPair = _jwt.IssueTokens(user);
 
