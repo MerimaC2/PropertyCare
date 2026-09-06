@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthFacadeService, CurrentUser } from '../../../core/services/auth-facade.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { LayoutService } from '../../../core/services/layout.service';
-import { NotificationsStateService } from '../notifications/notifications-state.service';
+import { NotificationsStateService } from '../../../core/services/notifications-state.service';
 
 /** Toolbar + router outlet shell for the reporter area. */
 @Component({

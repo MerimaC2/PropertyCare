@@ -65,6 +65,21 @@
     <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
   </button>
 
+  <a
+    mat-icon-button
+    routerLink="notifications"
+    routerLinkActive="active-link"
+    class="notif-button"
+    matTooltip="Notifications"
+    [matBadge]="notifications.unreadCount()"
+    [matBadgeHidden]="notifications.unreadCount() === 0"
+    matBadgeColor="warn"
+    matBadgeSize="small"
+    aria-label="Notifications"
+  >
+    <mat-icon>notifications</mat-icon>
+  </a>
+
   <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
     <mat-icon>account_circle</mat-icon>
     <span *ngIf="!layout.isHandset()">{{ user?.fullName }}</span>

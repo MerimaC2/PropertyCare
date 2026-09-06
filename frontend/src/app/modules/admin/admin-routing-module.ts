@@ -8,6 +8,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { UnitsComponent } from './units/units.component';
 import { AssetTypesComponent } from './asset-types/asset-types.component';
 import { AssetsComponent } from './assets/assets.component';
+import { NotificationsComponent } from '../../shared/components/notifications/notifications.component';
 
 const routes: Routes = [
   {
@@ -21,7 +22,8 @@ const routes: Routes = [
       { path: 'units', component: UnitsComponent },
       { path: 'assets', component: AssetsComponent },
       { path: 'asset-types', component: AssetTypesComponent },
-      { path: 'map', component: BuildingsMapComponent }
+      { path: 'map', component: BuildingsMapComponent },
+      { path: 'notifications', component: NotificationsComponent }
     ]
   }
 ];

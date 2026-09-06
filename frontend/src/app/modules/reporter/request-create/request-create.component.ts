@@ -5,7 +5,7 @@ import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { concatMap, from, last, tap } from 'rxjs';
 import { ImageCropDialogComponent } from './image-crop-dialog/image-crop-dialog.component';
-import { NotificationsStateService } from '../notifications/notifications-state.service';
+import { NotificationsStateService } from '../../../core/services/notifications-state.service';
 import { LookupsApiService } from '../../../api-services/lookups/lookups-api.service';
 import {
   AssetLookupDto,

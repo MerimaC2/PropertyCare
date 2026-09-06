@@ -134,7 +134,39 @@ public class DynamicDataSeeder : IDatabaseSeeder
         });
 
         // --- A few notifications (mixed types and read/unread, so the notification center has data to filter) ---
+        // The administrator and the technicians get one too: the notification center is open to
+        // every role now, and an empty screen would say nothing about whether it works.
         _ctx.Notifications.AddRange(
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = admin,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "New requests land in Triage. Assign them to a technician from there.",
+                IsRead = false,
+                CreatedAtUtc = nowUtc.AddDays(-40)
+            },
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = technician1,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "Work assigned to you shows up under My interventions.",
+                IsRead = false,
+                CreatedAtUtc = nowUtc.AddDays(-38)
+            },
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = technician2,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "Work assigned to you shows up under My interventions.",
+                IsRead = true,
+                CreatedAtUtc = nowUtc.AddDays(-38)
+            },
             new NotificationEntity
             {
                 TenantId = TenantId,
@@ -360,16 +392,37 @@ public class DynamicDataSeeder : IDatabaseSeeder
             CreatedAtUtc = nowUtc.AddDays(-6)
         });
 
-        _ctx.Notifications.Add(new NotificationEntity
-        {
-            TenantId = tenant.Id,
-            User = reporter,
-            Type = NotificationType.RequestSubmitted,
-            Title = "Request submitted",
-            Message = "Your request 'Boiler makes a loud noise' was submitted and is awaiting triage.",
-            IsRead = false,
-            CreatedAtUtc = nowUtc.AddDays(-3)
-        });
+        _ctx.Notifications.AddRange(
+            new NotificationEntity
+            {
+                TenantId = tenant.Id,
+                User = reporter,
+                Type = NotificationType.RequestSubmitted,
+                Title = "Request submitted",
+                Message = "Your request 'Boiler makes a loud noise' was submitted and is awaiting triage.",
+                IsRead = false,
+                CreatedAtUtc = nowUtc.AddDays(-3)
+            },
+            new NotificationEntity
+            {
+                TenantId = tenant.Id,
+                User = admin,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "New requests land in Triage. Assign them to a technician from there.",
+                IsRead = false,
+                CreatedAtUtc = createdAtUtc
+            },
+            new NotificationEntity
+            {
+                TenantId = tenant.Id,
+                User = technician,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "Work assigned to you shows up under My interventions.",
+                IsRead = false,
+                CreatedAtUtc = createdAtUtc
+            });
 
         await _ctx.SaveChangesAsync(ct);
     }

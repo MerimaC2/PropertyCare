@@ -3,11 +3,12 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from './material-module';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
 import { RequestPhotosDialogComponent } from './components/request-photos-dialog/request-photos-dialog.component';
 
 /** Common building blocks shared by all feature modules. */
 @NgModule({
-  declarations: [ConfirmDialogComponent, RequestPhotosDialogComponent],
+  declarations: [ConfirmDialogComponent, NotificationsComponent, RequestPhotosDialogComponent],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
   exports: [
     CommonModule,
@@ -15,6 +16,7 @@ import { RequestPhotosDialogComponent } from './components/request-photos-dialog
     ReactiveFormsModule,
     MaterialModule,
     ConfirmDialogComponent,
+    NotificationsComponent,
     RequestPhotosDialogComponent
   ]
 })
