@@ -1,3 +1,4 @@
+using FluentValidation.Results;
 using PropertyCare.Application.Abstractions;
 using PropertyCare.Application.Common;
 using PropertyCare.Application.Common.Exceptions;
@@ -35,7 +36,12 @@ public sealed class UploadRequestImageCommandHandler
         // is read from the file itself and decides both the stored type and the extension.
         var contentType = await ImageSignature.DetectAsync(request.Content, ct);
         if (contentType is null || !contentType.Equals(request.ContentType, StringComparison.OrdinalIgnoreCase))
-            throw new ValidationException("The file is not a valid JPEG, PNG or WebP image.");
+        {
+            // Raised as a field error so the caller is told why the file was rejected.
+            throw new ValidationException([
+                new ValidationFailure("file", "The file is not a valid JPEG, PNG or WebP image.")
+            ]);
+        }
 
         var extension = RequestImageEntity.Constraints.ExtensionByContentType[contentType];
 

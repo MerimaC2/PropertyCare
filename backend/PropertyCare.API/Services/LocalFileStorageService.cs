@@ -8,7 +8,7 @@ namespace PropertyCare.API.Services;
 /// </summary>
 public sealed class LocalFileStorageService : IFileStorageService
 {
-    private const string DefaultRootFolder = "App_Data/uploads";
+    private const string DefaultRootFolder = "App_Data";
 
     private readonly string _rootPath;
 
