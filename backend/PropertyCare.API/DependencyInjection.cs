@@ -9,6 +9,7 @@ using PropertyCare.API.Middleware;
 using PropertyCare.API.Models;
 using PropertyCare.API.Services;
 using PropertyCare.Application.Abstractions;
+using PropertyCare.Application.Common;
 using PropertyCare.Infrastructure.Auth;
 
 namespace PropertyCare.API;
@@ -23,6 +24,10 @@ public static class DependencyInjection
             {
                 // Serialize enums (e.g. notification Type) as their string names.
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+
+                // Every timestamp leaves the API as UTC with a Z suffix, so no screen has to
+                // append one by hand and no two screens can disagree about the zone.
+                options.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
             })
             .ConfigureApiBehaviorOptions(options =>
             {
