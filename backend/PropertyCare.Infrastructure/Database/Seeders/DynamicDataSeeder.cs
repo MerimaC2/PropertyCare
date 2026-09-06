@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PropertyCare.Domain.Common;
 using PropertyCare.Domain.Entities.Facilities;
 using PropertyCare.Domain.Entities.Identity;
 using PropertyCare.Domain.Entities.Maintenance;
@@ -17,10 +18,16 @@ namespace PropertyCare.Infrastructure.Database.Seeders;
 ///   technician2@propertycare.ba / Tech123!
 ///   reporter1@propertycare.ba   / Reporter123!
 ///   reporter2@propertycare.ba   / Reporter123!
+///
+/// Second tenant (Stanogradnja d.o.o.), seeded so tenant isolation can be seen working:
+///   admin@stanogradnja.ba      / Admin123!
+///   technician@stanogradnja.ba / Tech123!
+///   reporter@stanogradnja.ba   / Reporter123!
 /// </summary>
 public class DynamicDataSeeder : IDatabaseSeeder
 {
     private const int TenantId = 1;
+    private const string SecondTenantName = "Stanogradnja d.o.o.";
 
     private readonly DatabaseContext _ctx;
     private readonly IPasswordHasher<AppUserEntity> _hasher;
@@ -39,12 +46,20 @@ public class DynamicDataSeeder : IDatabaseSeeder
 
     public async Task SeedDynamicDataAsync(CancellationToken ct = default)
     {
-        // Idempotent: only seed an empty database.
-        if (await _ctx.Users.AnyAsync(ct))
-            return;
-
         var nowUtc = _clock.GetUtcNow().UtcDateTime;
 
+        // Seeding runs with nobody signed in, so every read here has to look past the global
+        // tenant filter. Each tenant is checked on its own, so a development database that
+        // already holds the first tenant still picks up the second one without being dropped.
+        if (!await _ctx.Users.IgnoreQueryFilters().AnyAsync(ct))
+            await SeedFirstTenantAsync(nowUtc, ct);
+
+        if (!await _ctx.Tenants.IgnoreQueryFilters().AnyAsync(t => t.Name == SecondTenantName, ct))
+            await SeedSecondTenantAsync(nowUtc, ct);
+    }
+
+    private async Task SeedFirstTenantAsync(DateTime nowUtc, CancellationToken ct)
+    {
         // --- Users (role ids come from StaticDataSeeder: 1 admin, 2 technician, 3 reporter) ---
         var admin = _admin = CreateUser(1, "Selma", "Hodžić", "admin@propertycare.ba", "Admin123!", nowUtc.AddDays(-40));
         var technician1 = CreateUser(2, "Emir", "Kovač", "technician1@propertycare.ba", "Tech123!", nowUtc.AddDays(-38));
@@ -54,9 +69,9 @@ public class DynamicDataSeeder : IDatabaseSeeder
         _ctx.Users.AddRange(admin, technician1, technician2, reporter1, reporter2);
 
         // --- Buildings (building type ids: 1 office, 2 residential, 3 warehouse) ---
-        var alpha = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 1, Name = "Alpha Business Center", Address = "Zmaja od Bosne 12, Sarajevo", CreatedAtUtc = nowUtc.AddDays(-34) };
-        var park = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 2, Name = "Park Residence", Address = "Maršala Tita 45, Mostar", CreatedAtUtc = nowUtc.AddDays(-34) };
-        var hub = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 3, Name = "Logistics Hub East", Address = "Industrijska zona bb, Tuzla", CreatedAtUtc = nowUtc.AddDays(-34) };
+        var alpha = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 1, Name = "Alpha Business Center", NameNormalized = BuildingEntity.NormalizeName("Alpha Business Center"), Address = "Zmaja od Bosne 12, Sarajevo", CreatedAtUtc = nowUtc.AddDays(-34) };
+        var park = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 2, Name = "Park Residence", NameNormalized = BuildingEntity.NormalizeName("Park Residence"), Address = "Maršala Tita 45, Mostar", CreatedAtUtc = nowUtc.AddDays(-34) };
+        var hub = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 3, Name = "Logistics Hub East", NameNormalized = BuildingEntity.NormalizeName("Logistics Hub East"), Address = "Industrijska zona bb, Tuzla", CreatedAtUtc = nowUtc.AddDays(-34) };
         _ctx.Buildings.AddRange(alpha, park, hub);
 
         // --- Units ---
@@ -188,6 +203,239 @@ public class DynamicDataSeeder : IDatabaseSeeder
 
         await _ctx.SaveChangesAsync(ct);
     }
+
+    /// <summary>
+    /// A second organisation with its own lookups, users, buildings and requests. With a single
+    /// tenant in the seed the tenant filter cannot be observed at all - signing in here is what
+    /// makes the isolation visible during manual testing.
+    /// </summary>
+    private async Task SeedSecondTenantAsync(DateTime nowUtc, CancellationToken ct)
+    {
+        var createdAtUtc = nowUtc.AddDays(-25);
+
+        var tenant = new TenantEntity { Name = SecondTenantName, CreatedAtUtc = createdAtUtc };
+        _ctx.Tenants.Add(tenant);
+        await _ctx.SaveChangesAsync(ct);
+
+        // Lookups carry a TenantId in this model, so the second tenant needs its own copies of
+        // what StaticDataSeeder created for tenant 1. Copying keeps the codes (NEW, ASSIGNED...)
+        // identical, which is what the handlers look up by.
+        var roles = await CopyForTenantAsync(
+            _ctx.UserRoles,
+            r => new UserRoleEntity
+            {
+                TenantId = tenant.Id, Abrv = r.Abrv, Name = r.Name, CreatedAtUtc = createdAtUtc
+            },
+            ct);
+
+        var requestStatuses = await CopyForTenantAsync(
+            _ctx.RequestStatuses,
+            s => new RequestStatusEntity
+            {
+                TenantId = tenant.Id, Abrv = s.Abrv, Name = s.Name,
+                IsTerminal = s.IsTerminal, CreatedAtUtc = createdAtUtc
+            },
+            ct);
+
+        var workOrderStatuses = await CopyForTenantAsync(
+            _ctx.WorkOrderStatuses,
+            s => new WorkOrderStatusEntity
+            {
+                TenantId = tenant.Id, Abrv = s.Abrv, Name = s.Name,
+                IsTerminal = s.IsTerminal, CreatedAtUtc = createdAtUtc
+            },
+            ct);
+
+        var priorities = await CopyForTenantAsync(
+            _ctx.RequestPriorities,
+            p => new RequestPriorityEntity
+            {
+                TenantId = tenant.Id, Abrv = p.Abrv, Name = p.Name,
+                SlaHours = p.SlaHours, CreatedAtUtc = createdAtUtc
+            },
+            ct);
+
+        var buildingTypes = await CopyForTenantAsync(
+            _ctx.BuildingTypes,
+            t => new BuildingTypeEntity
+            {
+                TenantId = tenant.Id, Abrv = t.Abrv, Name = t.Name, CreatedAtUtc = createdAtUtc
+            },
+            ct);
+
+        var assetTypes = await CopyForTenantAsync(
+            _ctx.AssetTypes,
+            t => new AssetTypeEntity
+            {
+                TenantId = tenant.Id, Name = t.Name,
+                DefaultSlaHours = t.DefaultSlaHours, CreatedAtUtc = createdAtUtc
+            },
+            ct);
+
+        var admin = CreateUser(tenant.Id, roles, UserRoleEntity.Names.Administrator,
+            "Nedim", "Alispahić", "admin@stanogradnja.ba", "Admin123!", createdAtUtc);
+        var technician = CreateUser(tenant.Id, roles, UserRoleEntity.Names.Technician,
+            "Vedad", "Šarić", "technician@stanogradnja.ba", "Tech123!", createdAtUtc);
+        var reporter = CreateUser(tenant.Id, roles, UserRoleEntity.Names.Reporter,
+            "Ajla", "Delić", "reporter@stanogradnja.ba", "Reporter123!", createdAtUtc);
+        _ctx.Users.AddRange(admin, technician, reporter);
+
+        // Deliberately the same name as a building of tenant 1: the unique index is per tenant,
+        // so this must be allowed, and neither tenant may see the other's copy.
+        var alpha = NewBuilding(tenant.Id, buildingTypes, "OFFICE",
+            "Alpha Business Center", "Titova 8, Sarajevo", createdAtUtc);
+        var vila = NewBuilding(tenant.Id, buildingTypes, "RES",
+            "Vila Neretva", "Kralja Tvrtka 3, Mostar", createdAtUtc);
+        _ctx.Buildings.AddRange(alpha, vila);
+
+        var floor2 = new UnitEntity
+        {
+            TenantId = tenant.Id, Building = alpha, Label = "Floor 2", CreatedAtUtc = createdAtUtc
+        };
+        var apartment3 = new UnitEntity
+        {
+            TenantId = tenant.Id, Building = vila, Label = "Apartment 3", CreatedAtUtc = createdAtUtc
+        };
+        _ctx.Units.AddRange(floor2, apartment3);
+
+        var boiler = new AssetEntity
+        {
+            TenantId = tenant.Id,
+            Unit = apartment3,
+            AssetType = assetTypes.Single(t => t.Name == "Plumbing"),
+            Name = "Gas boiler Vaillant",
+            CreatedAtUtc = createdAtUtc
+        };
+        _ctx.Assets.Add(boiler);
+
+        var newRequest = new MaintenanceRequestEntity
+        {
+            TenantId = tenant.Id,
+            Building = vila,
+            Unit = apartment3,
+            Asset = boiler,
+            CreatedByUser = reporter,
+            Priority = priorities.Single(p => p.Abrv == "HIGH"),
+            Status = requestStatuses.Single(s => s.Abrv == RequestStatusEntity.Codes.New),
+            Title = "Boiler makes a loud noise",
+            Description = "The gas boiler in apartment 3 rattles loudly every time it starts.",
+            CreatedAtUtc = nowUtc.AddDays(-3)
+        };
+        newRequest.StatusHistory.Add(new RequestStatusHistoryEntity
+        {
+            ToStatus = requestStatuses.Single(s => s.Abrv == RequestStatusEntity.Codes.New),
+            ChangedByUser = reporter,
+            Note = "Request created.",
+            CreatedAtUtc = nowUtc.AddDays(-3)
+        });
+
+        var assignedRequest = new MaintenanceRequestEntity
+        {
+            TenantId = tenant.Id,
+            Building = alpha,
+            Unit = floor2,
+            CreatedByUser = reporter,
+            Priority = priorities.Single(p => p.Abrv == "MED"),
+            Status = requestStatuses.Single(s => s.Abrv == RequestStatusEntity.Codes.Assigned),
+            Title = "Entrance door does not lock",
+            Description = "The main entrance door on floor 2 does not lock after office hours.",
+            CreatedAtUtc = nowUtc.AddDays(-7)
+        };
+        assignedRequest.StatusHistory.Add(new RequestStatusHistoryEntity
+        {
+            ToStatus = requestStatuses.Single(s => s.Abrv == RequestStatusEntity.Codes.New),
+            ChangedByUser = reporter,
+            Note = "Request created.",
+            CreatedAtUtc = nowUtc.AddDays(-7)
+        });
+        _ctx.MaintenanceRequests.AddRange(newRequest, assignedRequest);
+
+        _ctx.WorkOrders.Add(new WorkOrderEntity
+        {
+            TenantId = tenant.Id,
+            Request = assignedRequest,
+            AssignedToUser = technician,
+            Status = workOrderStatuses.Single(s => s.Abrv == WorkOrderStatusEntity.Codes.Assigned),
+            Note = "Check the lock cylinder and the closer.",
+            CreatedAtUtc = nowUtc.AddDays(-6)
+        });
+
+        _ctx.Notifications.Add(new NotificationEntity
+        {
+            TenantId = tenant.Id,
+            User = reporter,
+            Type = NotificationType.RequestSubmitted,
+            Title = "Request submitted",
+            Message = "Your request 'Boiler makes a loud noise' was submitted and is awaiting triage.",
+            IsRead = false,
+            CreatedAtUtc = nowUtc.AddDays(-3)
+        });
+
+        await _ctx.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Reads tenant 1's rows of a lookup table past the tenant filter and returns unsaved copies
+    /// for the new tenant.
+    /// </summary>
+    private async Task<List<TEntity>> CopyForTenantAsync<TEntity>(
+        DbSet<TEntity> set,
+        Func<TEntity, TEntity> copy,
+        CancellationToken ct)
+        where TEntity : class, ITenantScoped
+    {
+        var copies = (await set.IgnoreQueryFilters().AsNoTracking()
+                .Where(e => e.TenantId == TenantId)
+                .OrderBy(e => EF.Property<int>(e, "Id"))
+                .ToListAsync(ct))
+            .Select(copy)
+            .ToList();
+
+        set.AddRange(copies);
+        return copies;
+    }
+
+    private AppUserEntity CreateUser(
+        int tenantId,
+        List<UserRoleEntity> roles,
+        string roleName,
+        string firstName,
+        string lastName,
+        string email,
+        string password,
+        DateTime createdAtUtc)
+    {
+        var user = new AppUserEntity
+        {
+            TenantId = tenantId,
+            Role = roles.Single(r => r.Name == roleName),
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            IsActive = true,
+            CreatedAtUtc = createdAtUtc,
+            PasswordHash = string.Empty
+        };
+        user.PasswordHash = _hasher.HashPassword(user, password);
+        return user;
+    }
+
+    private static BuildingEntity NewBuilding(
+        int tenantId,
+        List<BuildingTypeEntity> types,
+        string typeAbrv,
+        string name,
+        string address,
+        DateTime createdAtUtc)
+        => new()
+        {
+            TenantId = tenantId,
+            BuildingType = types.Single(t => t.Abrv == typeAbrv),
+            Name = name,
+            NameNormalized = BuildingEntity.NormalizeName(name),
+            Address = address,
+            CreatedAtUtc = createdAtUtc
+        };
 
     private AppUserEntity CreateUser(
         int roleId, string firstName, string lastName, string email, string password, DateTime createdAtUtc)
