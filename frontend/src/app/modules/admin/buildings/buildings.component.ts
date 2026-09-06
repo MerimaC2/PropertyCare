@@ -32,6 +32,13 @@ export class BuildingsComponent implements OnInit {
   items: BuildingDto[] = [];
   buildingTypes: LookupItemDto[] = [];
   isLoading = false;
+
+  /**
+   * True while a create, update or delete call is in flight. The buttons that start one are
+   * disabled meanwhile, so a second click cannot send the same write twice.
+   */
+  isSaving = false;
+
   totalItems = 0;
   pageSize = DEFAULT_PAGE_SIZE;
   currentPage = 1;
@@ -122,13 +129,18 @@ export class BuildingsComponent implements OnInit {
         if (!command) {
           return;
         }
+        this.isSaving = true;
         this.buildingsApi.create(command).subscribe({
           next: () => {
+            this.isSaving = false;
             this.toaster.success('Building created.');
             this.loadData();
           },
-          error: (err: HttpErrorResponse) =>
-            this.toaster.error(this.errorMessage(err, 'Failed to create building.'))
+          error: (err: HttpErrorResponse) => {
+            this.isSaving = false;
+            this.cdr.markForCheck();
+            this.toaster.error(this.errorMessage(err, 'Failed to create building.'));
+          }
         });
       });
   }
@@ -144,13 +156,18 @@ export class BuildingsComponent implements OnInit {
         if (!command) {
           return;
         }
+        this.isSaving = true;
         this.buildingsApi.update(building.id, command).subscribe({
           next: () => {
+            this.isSaving = false;
             this.toaster.success('Building updated.');
             this.loadData();
           },
-          error: (err: HttpErrorResponse) =>
-            this.toaster.error(this.errorMessage(err, 'Failed to update building.'))
+          error: (err: HttpErrorResponse) => {
+            this.isSaving = false;
+            this.cdr.markForCheck();
+            this.toaster.error(this.errorMessage(err, 'Failed to update building.'));
+          }
         });
       });
   }
@@ -169,13 +186,18 @@ export class BuildingsComponent implements OnInit {
         if (!confirmed) {
           return;
         }
+        this.isSaving = true;
         this.buildingsApi.delete(building.id).subscribe({
           next: () => {
+            this.isSaving = false;
             this.toaster.success('Building deleted.');
             this.loadData();
           },
-          error: (err: HttpErrorResponse) =>
-            this.toaster.error(this.errorMessage(err, 'Failed to delete building.'))
+          error: (err: HttpErrorResponse) => {
+            this.isSaving = false;
+            this.cdr.markForCheck();
+            this.toaster.error(this.errorMessage(err, 'Failed to delete building.'));
+          }
         });
       });
   }
