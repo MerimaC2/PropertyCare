@@ -15,7 +15,8 @@ npm-debug.log*
 .claude/
 .vscode/
 
-# --- Runtime-uploaded files (request image attachments) ---
+# --- Runtime-uploaded files (private attachment storage, outside wwwroot) ---
+backend/PropertyCare.API/App_Data/
 backend/PropertyCare.API/wwwroot/uploads/
 
 # --- Logs ---

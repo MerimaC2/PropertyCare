@@ -6,6 +6,7 @@ using PropertyCare.Application.Common;
 using PropertyCare.Application.Modules.MaintenanceRequests;
 using PropertyCare.Application.Modules.MaintenanceRequests.Commands.Create;
 using PropertyCare.Application.Modules.MaintenanceRequests.Commands.UploadImage;
+using PropertyCare.Application.Modules.MaintenanceRequests.Queries.GetImageContent;
 using PropertyCare.Application.Modules.MaintenanceRequests.Queries.ListForTriage;
 using PropertyCare.Application.Modules.MaintenanceRequests.Queries.ListImages;
 using PropertyCare.Application.Modules.MaintenanceRequests.Queries.ListMy;
@@ -72,13 +73,33 @@ public sealed class MaintenanceRequestsController(ISender sender) : ControllerBa
         return Ok(dto);
     }
 
-    /// <summary>Lists the photos attached to one of the reporter's own requests.</summary>
+    /// <summary>
+    /// Lists the photos attached to a request. The handler authorizes per role: the reporter who
+    /// created it, an administrator of its tenant, or the technician assigned to its work order.
+    /// </summary>
     [HttpGet("{id:int}/images")]
-    [Authorize(Roles = UserRoleEntity.Names.Reporter)]
+    [Authorize]
     public async Task<ActionResult<IReadOnlyList<RequestImageDto>>> ListImages(
         int id,
         CancellationToken ct)
     {
         return Ok(await sender.Send(new ListRequestImagesQuery { RequestId = id }, ct));
+    }
+
+    /// <summary>
+    /// Streams one attachment. Attachments live outside the web root, so this action is the only
+    /// way to read them and it re-checks access rights on the file itself.
+    /// </summary>
+    [HttpGet("{id:int}/images/{imageId:int}/content")]
+    [Authorize]
+    public async Task<IActionResult> GetImageContent(
+        int id,
+        int imageId,
+        CancellationToken ct)
+    {
+        var image = await sender.Send(
+            new GetRequestImageContentQuery { RequestId = id, ImageId = imageId }, ct);
+
+        return File(image.Content, image.ContentType, image.FileName);
     }
 }

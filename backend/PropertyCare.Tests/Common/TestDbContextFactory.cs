@@ -8,15 +8,25 @@ public static class TestDbContextFactory
 {
     public static DatabaseContext Create()
     {
-        var options = new DbContextOptionsBuilder<DatabaseContext>()
-            .UseInMemoryDatabase($"PropertyCareTests_{Guid.NewGuid()}")
-            .Options;
-
-        var context = new DatabaseContext(options, TimeProvider.System);
+        var context = new DatabaseContext(BuildOptions(), TimeProvider.System);
 
         // EnsureCreated also applies the HasData seed (tenant, roles, statuses, priorities...).
         context.Database.EnsureCreated();
 
         return context;
     }
+
+    /// <summary>Same database, but with a save that can be made to fail mid-test.</summary>
+    public static FailingDbContext CreateFailing()
+    {
+        var context = new FailingDbContext(BuildOptions());
+        context.Database.EnsureCreated();
+
+        return context;
+    }
+
+    private static DbContextOptions<DatabaseContext> BuildOptions()
+        => new DbContextOptionsBuilder<DatabaseContext>()
+            .UseInMemoryDatabase($"PropertyCareTests_{Guid.NewGuid()}")
+            .Options;
 }

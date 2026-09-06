@@ -34,9 +34,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Serve uploaded request images (wwwroot/uploads/...) as static files
-app.UseStaticFiles();
-
 app.UseCors(corsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();

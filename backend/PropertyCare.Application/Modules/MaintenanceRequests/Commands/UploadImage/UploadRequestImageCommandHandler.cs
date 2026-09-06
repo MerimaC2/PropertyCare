@@ -1,4 +1,5 @@
 using PropertyCare.Application.Abstractions;
+using PropertyCare.Application.Common;
 using PropertyCare.Application.Common.Exceptions;
 using PropertyCare.Domain.Entities.Maintenance;
 
@@ -30,19 +31,37 @@ public sealed class UploadRequestImageCommandHandler
         if (!owns)
             throw new NotFoundException("Maintenance request not found.");
 
+        // The declared content type and the file name are both client-supplied, so the real format
+        // is read from the file itself and decides both the stored type and the extension.
+        var contentType = await ImageSignature.DetectAsync(request.Content, ct);
+        if (contentType is null || !contentType.Equals(request.ContentType, StringComparison.OrdinalIgnoreCase))
+            throw new ValidationException("The file is not a valid JPEG, PNG or WebP image.");
+
+        var extension = RequestImageEntity.Constraints.ExtensionByContentType[contentType];
+
         var relativePath = await _storage.SaveAsync(
-            $"uploads/{request.RequestId}", request.FileName, request.Content, ct);
+            $"uploads/{request.RequestId}", extension, request.Content, ct);
 
         var entity = new RequestImageEntity
         {
             RequestId = request.RequestId,
             FileName = request.FileName.Trim(),
-            ContentType = request.ContentType,
+            ContentType = contentType,
             RelativePath = relativePath,
             SizeBytes = request.SizeBytes
         };
         _ctx.RequestImages.Add(entity);
-        await _ctx.SaveChangesAsync(ct);
+
+        try
+        {
+            await _ctx.SaveChangesAsync(ct);
+        }
+        catch
+        {
+            // The file is already on disk; without its database row nothing would ever reference it.
+            _storage.Delete(relativePath);
+            throw;
+        }
 
         return new RequestImageDto
         {
@@ -50,7 +69,7 @@ public sealed class UploadRequestImageCommandHandler
             FileName = entity.FileName,
             ContentType = entity.ContentType,
             SizeBytes = entity.SizeBytes,
-            Url = "/" + entity.RelativePath
+            Url = RequestImageDto.BuildContentUrl(entity.RequestId, entity.Id)
         };
     }
 }
