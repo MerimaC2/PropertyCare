@@ -22,11 +22,15 @@ public sealed class AddWorkLogCommandHandler : IRequestHandler<AddWorkLogCommand
         var tenantId = _currentUser.TenantId
             ?? throw new ForbiddenException("User has no tenant.");
 
-        // Technician may only log work on their own work orders.
+        // Technician may only log work on their own work orders, inside their own tenant.
         var workOrder = await _ctx.WorkOrders
             .Include(w => w.Status)
             .FirstOrDefaultAsync(
-                w => w.Id == request.WorkOrderId && w.AssignedToUserId == userId && !w.IsDeleted, ct)
+                w => w.Id == request.WorkOrderId
+                    && w.AssignedToUserId == userId
+                    && w.TenantId == tenantId
+                    && !w.IsDeleted,
+                ct)
             ?? throw new NotFoundException("Work order not found.");
 
         // A completed or cancelled order is closed; letting hours land on it afterwards would make

@@ -20,11 +20,14 @@ public sealed class AssignWorkOrderCommandHandler : IRequestHandler<AssignWorkOr
     {
         var adminUserId = _currentUser.UserId
             ?? throw new ForbiddenException("User is not authenticated.");
+        var tenantId = _currentUser.TenantId
+            ?? throw new ForbiddenException("User has no tenant.");
 
-        // 1. Request must exist and must not be closed.
+        // 1. Request must exist in this tenant and must not be closed.
         var maintenanceRequest = await _ctx.MaintenanceRequests
             .Include(r => r.Status)
-            .FirstOrDefaultAsync(r => r.Id == request.RequestId && !r.IsDeleted, ct)
+            .FirstOrDefaultAsync(
+                r => r.Id == request.RequestId && r.TenantId == tenantId && !r.IsDeleted, ct)
             ?? throw new NotFoundException("Maintenance request not found.");
 
         if (maintenanceRequest.Status.IsTerminal)
@@ -36,18 +39,24 @@ public sealed class AssignWorkOrderCommandHandler : IRequestHandler<AssignWorkOr
         if (hasActiveWorkOrder)
             throw new ConflictException("The request is already assigned to a technician.");
 
-        // 3. The assignee must be an active technician.
+        // 3. The assignee must be an active technician of the same tenant - work must never be
+        // handed to a technician who belongs to somebody else's organisation.
         var technician = await _ctx.Users
             .Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.Id == request.AssignedToUserId && !u.IsDeleted, ct)
+            .FirstOrDefaultAsync(
+                u => u.Id == request.AssignedToUserId && u.TenantId == tenantId && !u.IsDeleted, ct)
             ?? throw new NotFoundException("Technician not found.");
 
         if (!technician.IsActive || technician.Role.Name != UserRoleEntity.Names.Technician)
             throw new ValidationException("The selected user is not an active technician.");
 
-        // 4. Create the work order in the ASSIGNED status.
+        // 4. Create the work order in the ASSIGNED status of this tenant.
         var workOrderStatus = await _ctx.WorkOrderStatuses
-            .FirstOrDefaultAsync(s => s.Abrv == WorkOrderStatusEntity.Codes.Assigned && !s.IsDeleted, ct)
+            .FirstOrDefaultAsync(
+                s => s.Abrv == WorkOrderStatusEntity.Codes.Assigned
+                    && s.TenantId == tenantId
+                    && !s.IsDeleted,
+                ct)
             ?? throw new NotFoundException("Initial work order status is not configured.");
 
         var workOrder = new WorkOrderEntity
@@ -62,7 +71,11 @@ public sealed class AssignWorkOrderCommandHandler : IRequestHandler<AssignWorkOr
 
         // 5. Move the request to ASSIGNED and record the transition.
         var assignedRequestStatus = await _ctx.RequestStatuses
-            .FirstOrDefaultAsync(s => s.Abrv == RequestStatusEntity.Codes.Assigned && !s.IsDeleted, ct)
+            .FirstOrDefaultAsync(
+                s => s.Abrv == RequestStatusEntity.Codes.Assigned
+                    && s.TenantId == tenantId
+                    && !s.IsDeleted,
+                ct)
             ?? throw new NotFoundException("Assigned request status is not configured.");
 
         if (maintenanceRequest.StatusId != assignedRequestStatus.Id)
