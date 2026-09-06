@@ -57,7 +57,7 @@ export class BuildingsMapComponent implements AfterViewInit, OnDestroy {
             weight: 2,
             fillColor: '#1565c0',
             fillOpacity: 0.6
-          }).bindPopup(`<strong>${b.name}</strong>${b.address ? '<br>' + b.address : ''}`);
+          }).bindPopup(this.buildPopup(b.name, b.address));
           marker.addTo(this.map!);
           markers.push(marker);
         }
@@ -76,6 +76,27 @@ export class BuildingsMapComponent implements AfterViewInit, OnDestroy {
         this.toaster.error('Failed to load building locations.');
       }
     });
+  }
+
+  /**
+   * Builds the popup as DOM nodes rather than an HTML string. The name and the address are typed
+   * in by an administrator and stored in the database, so concatenating them into markup would
+   * let a building called `<img src=x onerror=...>` run script in every admin's browser.
+   * textContent writes them as text, whatever they contain.
+   */
+  private buildPopup(name: string, address: string | null | undefined): HTMLElement {
+    const container = document.createElement('div');
+
+    const title = document.createElement('strong');
+    title.textContent = name;
+    container.appendChild(title);
+
+    if (address) {
+      container.appendChild(document.createElement('br'));
+      container.appendChild(document.createTextNode(address));
+    }
+
+    return container;
   }
 
   ngOnDestroy(): void {
