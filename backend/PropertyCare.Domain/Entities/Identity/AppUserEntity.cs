@@ -2,7 +2,7 @@ using PropertyCare.Domain.Common;
 
 namespace PropertyCare.Domain.Entities.Identity;
 
-public sealed class AppUserEntity : BaseEntity
+public sealed class AppUserEntity : BaseEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;

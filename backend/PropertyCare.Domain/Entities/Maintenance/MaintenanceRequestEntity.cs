@@ -5,7 +5,7 @@ using PropertyCare.Domain.Entities.Identity;
 namespace PropertyCare.Domain.Entities.Maintenance;
 
 /// <summary>A fault report created by a reporter for a building/unit/asset.</summary>
-public sealed class MaintenanceRequestEntity : BaseEntity
+public sealed class MaintenanceRequestEntity : BaseEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;

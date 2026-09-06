@@ -3,7 +3,7 @@ using PropertyCare.Domain.Entities.Identity;
 
 namespace PropertyCare.Domain.Entities.Maintenance;
 
-public sealed class RequestPriorityEntity : BaseEntity
+public sealed class RequestPriorityEntity : BaseEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;

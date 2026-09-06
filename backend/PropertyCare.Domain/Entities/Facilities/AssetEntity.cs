@@ -4,7 +4,7 @@ using PropertyCare.Domain.Entities.Identity;
 namespace PropertyCare.Domain.Entities.Facilities;
 
 /// <summary>A piece of equipment located in a unit (elevator, AC unit, boiler...).</summary>
-public sealed class AssetEntity : BaseEntity
+public sealed class AssetEntity : BaseEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;

@@ -20,7 +20,10 @@ public sealed class LogoutCommandHandler : IRequestHandler<LogoutCommand>
     {
         var tokenHash = _jwt.HashRefreshToken(request.RefreshToken);
 
+        // Logging out carries no access token, so like login and refresh it runs without a tenant
+        // and has to look past the global filter. The token hash is what identifies the row.
         var storedToken = await _ctx.RefreshTokens
+            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(t => t.TokenHash == tokenHash && !t.IsDeleted, ct);
 
         // Logout is idempotent - an unknown token is silently ignored.

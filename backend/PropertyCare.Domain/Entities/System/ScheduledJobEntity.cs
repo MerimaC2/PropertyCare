@@ -4,7 +4,7 @@ using PropertyCare.Domain.Entities.Identity;
 namespace PropertyCare.Domain.Entities.System;
 
 /// <summary>A recurring job definition (e.g. periodic inspection), scheduled with a cron-like expression.</summary>
-public sealed class ScheduledJobEntity : BaseEntity
+public sealed class ScheduledJobEntity : BaseEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;

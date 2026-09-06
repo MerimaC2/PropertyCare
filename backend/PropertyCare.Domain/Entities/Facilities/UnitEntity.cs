@@ -4,7 +4,7 @@ using PropertyCare.Domain.Entities.Identity;
 namespace PropertyCare.Domain.Entities.Facilities;
 
 /// <summary>A unit inside a building (office, apartment, room...).</summary>
-public sealed class UnitEntity : BaseEntity
+public sealed class UnitEntity : BaseEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;
