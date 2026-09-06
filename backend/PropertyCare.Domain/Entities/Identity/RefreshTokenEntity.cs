@@ -12,12 +12,8 @@ public sealed class RefreshTokenEntity : BaseEntity
     public bool IsRevoked { get; set; }
     public DateTime? RevokedAtUtc { get; set; }
 
-    /// <summary>Optional device fingerprint so a stolen token cannot be reused from another device.</summary>
-    public string? Fingerprint { get; set; }
-
     public static class Constraints
     {
         public const int TokenHashMaxLength = 128;
-        public const int FingerprintMaxLength = 256;
     }
 }

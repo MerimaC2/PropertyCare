@@ -35,9 +35,6 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         if (storedToken.IsRevoked || storedToken.ExpiresAtUtc <= nowUtc)
             throw new ConflictException("Refresh token is expired or revoked.");
 
-        if (storedToken.Fingerprint is not null && storedToken.Fingerprint != request.Fingerprint)
-            throw new ConflictException("Refresh token is bound to another device.");
-
         var user = storedToken.User;
         if (!user.IsActive || user.IsDeleted)
             throw new ConflictException("User is disabled.");
@@ -53,7 +50,6 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
             UserId = user.Id,
             TokenHash = _jwt.HashRefreshToken(tokenPair.RefreshTokenRaw),
             ExpiresAtUtc = tokenPair.RefreshTokenExpiresAtUtc,
-            Fingerprint = request.Fingerprint,
             IsRevoked = false,
             CreatedAtUtc = nowUtc
         });

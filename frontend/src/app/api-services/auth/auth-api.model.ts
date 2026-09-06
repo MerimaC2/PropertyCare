@@ -3,12 +3,10 @@
 export interface LoginCommand {
   email: string;
   password: string;
-  fingerprint?: string | null;
 }
 
 export interface RefreshTokenCommand {
   refreshToken: string;
-  fingerprint?: string | null;
 }
 
 export interface LogoutCommand {
