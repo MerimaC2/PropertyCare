@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>Photos &mdash; {{ data.requestTitle }}</h2>
+
+<mat-dialog-content>
+  <mat-progress-bar *ngIf="isLoading" mode="indeterminate"></mat-progress-bar>
+
+  <p class="load-error" *ngIf="loadError">{{ loadError }}</p>
+
+  <div class="photo-grid" *ngIf="photos.length > 0">
+    <figure class="photo" *ngFor="let photo of photos">
+      <img [src]="photo.objectUrl" [alt]="photo.image.fileName" />
+      <figcaption>
+        <span class="photo-name" [matTooltip]="photo.image.fileName">
+          {{ photo.image.fileName }}
+        </span>
+        <span class="photo-size">{{ sizeInKb(photo.image.sizeBytes) }} KB</span>
+        <button mat-icon-button type="button" matTooltip="Download" (click)="download(photo)">
+          <mat-icon>download</mat-icon>
+        </button>
+      </figcaption>
+    </figure>
+  </div>
+
+  <p class="no-photos" *ngIf="!isLoading && !loadError && photos.length === 0">
+    No photos were attached to this request.
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close()">Close</button>
+</mat-dialog-actions>
