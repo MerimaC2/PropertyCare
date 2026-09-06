@@ -18,7 +18,9 @@
       <mat-select formControlName="buildingTypeId">
         <mat-option *ngFor="let t of data.buildingTypes" [value]="t.id">{{ t.name }}</mat-option>
       </mat-select>
-      <mat-error *ngIf="form.controls['buildingTypeId'].hasError('required')">Type is required.</mat-error>
+      <mat-error *ngIf="form.controls['buildingTypeId'].hasError('required')"
+        >Type is required.</mat-error
+      >
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
@@ -44,7 +46,13 @@
 
 <mat-dialog-actions align="end">
   <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
-  <button mat-flat-button color="primary" type="button" (click)="onSubmit()">
-    {{ isEdit ? 'Save' : 'Create' }}
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    [disabled]="form.pending"
+    (click)="onSubmit()"
+  >
+    {{ form.pending ? 'Checking...' : isEdit ? 'Save' : 'Create' }}
   </button>
 </mat-dialog-actions>
