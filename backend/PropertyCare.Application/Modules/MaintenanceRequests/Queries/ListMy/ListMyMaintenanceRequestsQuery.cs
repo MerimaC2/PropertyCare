@@ -11,6 +11,12 @@ public sealed class ListMyMaintenanceRequestsQuery : BasePagedQuery<ListMyMainte
     public int? StatusId { get; set; }
     public int? PriorityId { get; set; }
     public int? BuildingId { get; set; }
-    public DateTime? DateFrom { get; set; }
-    public DateTime? DateTo { get; set; }
+    /// <summary>
+    /// Calendar days, not moments: the datepicker gives a day, and a day has no time zone. As
+    /// <see cref="DateTime"/> the frontend had to send a moment, and local midnight converted to
+    /// UTC landed on the previous day.
+    /// </summary>
+    public DateOnly? DateFrom { get; set; }
+
+    public DateOnly? DateTo { get; set; }
 }
