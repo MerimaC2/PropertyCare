@@ -11,10 +11,10 @@ html {
     (
       color: (
         primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        tertiary: mat.$blue-palette
       ),
       typography: Roboto,
-      density: 0,
+      density: 0
     )
   );
 }
@@ -67,6 +67,124 @@ body.dark-theme {
   --mat-sys-outline-variant: #55585f;
 
   background-color: var(--mat-sys-surface);
+}
+
+// --- Status and priority chips ---
+// Only the colour pair lives here; the chip shape is in shared/styles/_page.scss.
+// These rules are global on purpose: the dark variants key off `body.dark-theme`, and
+// inside a component stylesheet Angular rewrites that to `body.dark-theme[_ngcontent-…]`,
+// which never matches the real <body>.
+
+.status-chip {
+  &.status-new {
+    --pc-chip-bg: #e3f2fd;
+    --pc-chip-fg: #1565c0;
+  }
+
+  &.status-assigned {
+    --pc-chip-bg: #ede7f6;
+    --pc-chip-fg: #5e35b1;
+  }
+
+  &.status-in_progress {
+    --pc-chip-bg: #fff8e1;
+    --pc-chip-fg: #b26a00;
+  }
+
+  &.status-on_hold {
+    --pc-chip-bg: #eceff1;
+    --pc-chip-fg: #546e7a;
+  }
+
+  &.status-completed {
+    --pc-chip-bg: #e8f5e9;
+    --pc-chip-fg: #2e7d32;
+  }
+
+  &.status-cancelled {
+    --pc-chip-bg: #fbe9e7;
+    --pc-chip-fg: #c62828;
+  }
+}
+
+.priority-chip {
+  &.priority-low {
+    --pc-chip-bg: #eceff1;
+    --pc-chip-fg: #546e7a;
+  }
+
+  &.priority-med {
+    --pc-chip-bg: #e3f2fd;
+    --pc-chip-fg: #1565c0;
+  }
+
+  &.priority-high {
+    --pc-chip-bg: #fff3e0;
+    --pc-chip-fg: #e65100;
+  }
+
+  &.priority-crit {
+    --pc-chip-bg: #ffebee;
+    --pc-chip-fg: #b71c1c;
+  }
+}
+
+// Same hues, but the pale fill becomes a deep tint of that hue and the text moves to its
+// light end. Every pair stays above the WCAG AA contrast ratio.
+body.dark-theme {
+  .status-chip {
+    &.status-new {
+      --pc-chip-bg: #1b3a5c;
+      --pc-chip-fg: #9ecbff;
+    }
+
+    &.status-assigned {
+      --pc-chip-bg: #302a4d;
+      --pc-chip-fg: #cbbdf7;
+    }
+
+    &.status-in_progress {
+      --pc-chip-bg: #46340a;
+      --pc-chip-fg: #ffcf70;
+    }
+
+    &.status-on_hold {
+      --pc-chip-bg: #333a3f;
+      --pc-chip-fg: #b0bec5;
+    }
+
+    &.status-completed {
+      --pc-chip-bg: #1e3b23;
+      --pc-chip-fg: #a5d6a7;
+    }
+
+    &.status-cancelled {
+      --pc-chip-bg: #47251f;
+      --pc-chip-fg: #ffb4a4;
+    }
+  }
+
+  .priority-chip {
+    &.priority-low {
+      --pc-chip-bg: #333a3f;
+      --pc-chip-fg: #b0bec5;
+    }
+
+    &.priority-med {
+      --pc-chip-bg: #1b3a5c;
+      --pc-chip-fg: #9ecbff;
+    }
+
+    &.priority-high {
+      --pc-chip-bg: #4d2f0d;
+      --pc-chip-fg: #ffb74d;
+    }
+
+    &.priority-crit {
+      --pc-chip-bg: #55211d;
+      --pc-chip-fg: #ff8a80;
+    }
+  }
 }
 
 a {
