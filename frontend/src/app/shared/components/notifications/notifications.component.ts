@@ -8,7 +8,7 @@ import {
 } from '../../../api-services/notifications/notifications-api.models';
 import { DEFAULT_PAGE_SIZE } from '../../../core/models/paging/page-request';
 import { ToasterService } from '../../../core/services/toaster.service';
-import { NotificationsStateService } from './notifications-state.service';
+import { NotificationsStateService } from '../../../core/services/notifications-state.service';
 
 interface TypeOption {
   value: NotificationType;

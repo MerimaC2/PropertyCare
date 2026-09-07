@@ -16,11 +16,11 @@
 .summary-value {
   font-size: 2rem;
   font-weight: 700;
-  color: #1565c0;
+  color: var(--mat-sys-primary);
 }
 
 .summary-label {
-  color: #5b6472;
+  color: var(--mat-sys-on-surface-variant);
   font-size: 0.9rem;
 }
 

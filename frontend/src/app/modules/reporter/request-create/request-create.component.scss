@@ -27,8 +27,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #fdecea;
-  color: #b3261e;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
   border-radius: 8px;
   padding: 10px 12px;
   margin-bottom: 12px;
@@ -49,7 +49,7 @@
   display: block;
   font-weight: 500;
   margin-bottom: 8px;
-  color: rgba(0, 0, 0, 0.7);
+  color: var(--mat-sys-on-surface);
 }
 
 .photos-grid {
@@ -104,7 +104,7 @@
 
 .photos-hint {
   font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.55);
+  color: var(--mat-sys-on-surface-variant);
   margin-top: 6px;
 }
 
@@ -115,6 +115,6 @@
     display: block;
     font-size: 0.85rem;
     margin-bottom: 4px;
-    color: rgba(0, 0, 0, 0.7);
+    color: var(--mat-sys-on-surface);
   }
 }

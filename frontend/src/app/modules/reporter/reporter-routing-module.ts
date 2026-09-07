@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ReporterLayoutComponent } from './layout/reporter-layout.component';
 import { MyRequestsComponent } from './my-requests/my-requests.component';
 import { RequestCreateComponent } from './request-create/request-create.component';
-import { NotificationsComponent } from './notifications/notifications.component';
+import { NotificationsComponent } from '../../shared/components/notifications/notifications.component';
 
 const routes: Routes = [
   {

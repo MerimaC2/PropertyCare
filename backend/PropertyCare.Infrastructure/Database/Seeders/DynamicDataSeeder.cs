@@ -69,10 +69,25 @@ public class DynamicDataSeeder : IDatabaseSeeder
         _ctx.Users.AddRange(admin, technician1, technician2, reporter1, reporter2);
 
         // --- Buildings (building type ids: 1 office, 2 residential, 3 warehouse) ---
-        var alpha = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 1, Name = "Alpha Business Center", NameNormalized = BuildingEntity.NormalizeName("Alpha Business Center"), Address = "Zmaja od Bosne 12, Sarajevo", CreatedAtUtc = nowUtc.AddDays(-34) };
-        var park = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 2, Name = "Park Residence", NameNormalized = BuildingEntity.NormalizeName("Park Residence"), Address = "Maršala Tita 45, Mostar", CreatedAtUtc = nowUtc.AddDays(-34) };
-        var hub = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 3, Name = "Logistics Hub East", NameNormalized = BuildingEntity.NormalizeName("Logistics Hub East"), Address = "Industrijska zona bb, Tuzla", CreatedAtUtc = nowUtc.AddDays(-34) };
+        var alpha = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 1, Name = "Alpha Business Center", NameNormalized = BuildingEntity.NormalizeName("Alpha Business Center"), Address = "Zmaja od Bosne 12, Sarajevo", Latitude = 43.8563, Longitude = 18.4131, CreatedAtUtc = nowUtc.AddDays(-34) };
+        var park = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 2, Name = "Park Residence", NameNormalized = BuildingEntity.NormalizeName("Park Residence"), Address = "Maršala Tita 45, Mostar", Latitude = 43.3438, Longitude = 17.8078, CreatedAtUtc = nowUtc.AddDays(-34) };
+        var hub = new BuildingEntity { TenantId = TenantId, BuildingTypeId = 3, Name = "Logistics Hub East", NameNormalized = BuildingEntity.NormalizeName("Logistics Hub East"), Address = "Industrijska zona bb, Tuzla", Latitude = 44.5384, Longitude = 18.6734, CreatedAtUtc = nowUtc.AddDays(-34) };
         _ctx.Buildings.AddRange(alpha, park, hub);
+
+        // Ten more buildings, so the list spills onto a second page at the smallest page size and
+        // the five filters have something to narrow down. The last three are deliberately left off
+        // the map, so the "Not placed yet" filter returns rows too.
+        var bosmal = NewBuilding(TenantId, 2, "Bosmal City Center", "Hamdije Čemerlića 2, Sarajevo", 43.8452, 18.3861, nowUtc.AddDays(-30));
+        var importanne = NewBuilding(TenantId, 1, "Importanne Centar", "Zmaja od Bosne 7, Sarajevo", 43.8556, 18.4009, nowUtc.AddDays(-30));
+        var skenderija = NewBuilding(TenantId, 1, "Skenderija Complex", "Terezija bb, Sarajevo", 43.8548, 18.4152, nowUtc.AddDays(-29));
+        var banjaLuka = NewBuilding(TenantId, 1, "Banja Luka Business Park", "Vidovdanska 2, Banja Luka", 44.7722, 17.1910, nowUtc.AddDays(-29));
+        var zenica = NewBuilding(TenantId, 3, "Zenica Industrial Depot", "Sarajevska 130, Zenica", 44.2039, 17.9078, nowUtc.AddDays(-28));
+        var neum = NewBuilding(TenantId, 2, "Neum Seaside Apartments", "Primorska 24, Neum", 42.9231, 17.6142, nowUtc.AddDays(-28));
+        var bihac = NewBuilding(TenantId, 3, "Bihać Storage North", "Bosanska 45, Bihać", 44.8169, 15.8708, nowUtc.AddDays(-27));
+        var tuzlaOffices = NewBuilding(TenantId, 1, "Tuzla City Offices", "Turalibegova 12, Tuzla", null, null, nowUtc.AddDays(-27));
+        var dobojPark = NewBuilding(TenantId, 2, "Doboj Residence Park", "Kralja Petra I 8, Doboj", null, null, nowUtc.AddDays(-26));
+        var mostarDepot = NewBuilding(TenantId, 3, "Mostar West Depot", "Bišće polje bb, Mostar", null, null, nowUtc.AddDays(-26));
+        _ctx.Buildings.AddRange(bosmal, importanne, skenderija, banjaLuka, zenica, neum, bihac, tuzlaOffices, dobojPark, mostarDepot);
 
         // --- Units ---
         var office101 = new UnitEntity { TenantId = TenantId, Building = alpha, Label = "Office 101", CreatedAtUtc = nowUtc.AddDays(-33) };
@@ -82,6 +97,20 @@ public class DynamicDataSeeder : IDatabaseSeeder
         var apartment7A = new UnitEntity { TenantId = TenantId, Building = park, Label = "Apartment 7A", CreatedAtUtc = nowUtc.AddDays(-33) };
         var storageHall = new UnitEntity { TenantId = TenantId, Building = hub, Label = "Storage Hall 1", CreatedAtUtc = nowUtc.AddDays(-33) };
         _ctx.Units.AddRange(office101, office202, confRoomA, lobby, apartment7A, storageHall);
+
+        // Units for some of the extra buildings, so the unit count filter has a real range to work
+        // with instead of every new building sitting at zero.
+        _ctx.Units.AddRange(
+            new UnitEntity { TenantId = TenantId, Building = bosmal, Label = "Apartment 12A", CreatedAtUtc = nowUtc.AddDays(-29) },
+            new UnitEntity { TenantId = TenantId, Building = bosmal, Label = "Apartment 12B", CreatedAtUtc = nowUtc.AddDays(-29) },
+            new UnitEntity { TenantId = TenantId, Building = bosmal, Label = "Apartment 15C", CreatedAtUtc = nowUtc.AddDays(-29) },
+            new UnitEntity { TenantId = TenantId, Building = bosmal, Label = "Roof Terrace", CreatedAtUtc = nowUtc.AddDays(-29) },
+            new UnitEntity { TenantId = TenantId, Building = importanne, Label = "Office 301", CreatedAtUtc = nowUtc.AddDays(-29) },
+            new UnitEntity { TenantId = TenantId, Building = importanne, Label = "Office 302", CreatedAtUtc = nowUtc.AddDays(-29) },
+            new UnitEntity { TenantId = TenantId, Building = zenica, Label = "Depot Hall A", CreatedAtUtc = nowUtc.AddDays(-27) },
+            new UnitEntity { TenantId = TenantId, Building = neum, Label = "Studio 1", CreatedAtUtc = nowUtc.AddDays(-27) },
+            new UnitEntity { TenantId = TenantId, Building = neum, Label = "Studio 2", CreatedAtUtc = nowUtc.AddDays(-27) },
+            new UnitEntity { TenantId = TenantId, Building = neum, Label = "Sea View Suite", CreatedAtUtc = nowUtc.AddDays(-27) });
 
         // --- Assets (asset type ids: 1 HVAC, 2 elevator, 3 plumbing, 4 electrical, 5 appliance) ---
         var acUnit = new AssetEntity { TenantId = TenantId, Unit = office101, AssetTypeId = 1, Name = "Air conditioner AC-X500", CreatedAtUtc = nowUtc.AddDays(-32) };
@@ -119,22 +148,63 @@ public class DynamicDataSeeder : IDatabaseSeeder
 
         var onHold = AddRequest(reporter2, hub, storageHall, null, priorityId: 1, statusId: 4, nowUtc.AddDays(-15),
             "Broken window in storage hall", "A window pane in Storage Hall 1 is cracked, cold air comes in during the night shift.");
-        AddWorkOrder(onHold, technician2, statusId: 3, nowUtc.AddDays(-14), "Waiting for the replacement glass delivery.");
+        var onHoldWo = AddWorkOrder(onHold, technician2, statusId: 3, nowUtc.AddDays(-14), "Waiting for the replacement glass delivery.");
 
         var completed = AddRequest(reporter1, alpha, office101, null, priorityId: 2, statusId: 5, nowUtc.AddDays(-20),
             "Flickering light in hallway", "The hallway light in front of office 101 flickers constantly.");
         var completedWo = AddWorkOrder(completed, technician1, statusId: 4, nowUtc.AddDays(-19), "Replaced the faulty ballast and tube.");
-        _ctx.WorkLogs.Add(new WorkLogEntity
-        {
-            TenantId = TenantId,
-            WorkOrder = completedWo,
-            Note = "Replaced ballast and fluorescent tube, tested for 30 minutes.",
-            MinutesSpent = 45,
-            CreatedAtUtc = nowUtc.AddDays(-19).AddHours(3)
-        });
+        _ctx.WorkLogs.AddRange(
+            new WorkLogEntity
+            {
+                TenantId = TenantId,
+                WorkOrder = completedWo,
+                Note = "Replaced ballast and fluorescent tube, tested for 30 minutes.",
+                MinutesSpent = 45,
+                CreatedAtUtc = nowUtc.AddDays(-19).AddHours(3)
+            },
+            new WorkLogEntity
+            {
+                TenantId = TenantId,
+                WorkOrder = onHoldWo,
+                Note = "Measured window dimensions and ordered replacement glass. Awaiting delivery.",
+                MinutesSpent = 30,
+                CreatedAtUtc = nowUtc.AddDays(-13)
+            });
 
         // --- A few notifications (mixed types and read/unread, so the notification center has data to filter) ---
+        // The administrator and the technicians get one too: the notification center is open to
+        // every role now, and an empty screen would say nothing about whether it works.
         _ctx.Notifications.AddRange(
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = admin,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "New requests land in Triage. Assign them to a technician from there.",
+                IsRead = false,
+                CreatedAtUtc = nowUtc.AddDays(-40)
+            },
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = technician1,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "Work assigned to you shows up under My interventions.",
+                IsRead = false,
+                CreatedAtUtc = nowUtc.AddDays(-38)
+            },
+            new NotificationEntity
+            {
+                TenantId = TenantId,
+                User = technician2,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "Work assigned to you shows up under My interventions.",
+                IsRead = true,
+                CreatedAtUtc = nowUtc.AddDays(-38)
+            },
             new NotificationEntity
             {
                 TenantId = TenantId,
@@ -360,16 +430,37 @@ public class DynamicDataSeeder : IDatabaseSeeder
             CreatedAtUtc = nowUtc.AddDays(-6)
         });
 
-        _ctx.Notifications.Add(new NotificationEntity
-        {
-            TenantId = tenant.Id,
-            User = reporter,
-            Type = NotificationType.RequestSubmitted,
-            Title = "Request submitted",
-            Message = "Your request 'Boiler makes a loud noise' was submitted and is awaiting triage.",
-            IsRead = false,
-            CreatedAtUtc = nowUtc.AddDays(-3)
-        });
+        _ctx.Notifications.AddRange(
+            new NotificationEntity
+            {
+                TenantId = tenant.Id,
+                User = reporter,
+                Type = NotificationType.RequestSubmitted,
+                Title = "Request submitted",
+                Message = "Your request 'Boiler makes a loud noise' was submitted and is awaiting triage.",
+                IsRead = false,
+                CreatedAtUtc = nowUtc.AddDays(-3)
+            },
+            new NotificationEntity
+            {
+                TenantId = tenant.Id,
+                User = admin,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "New requests land in Triage. Assign them to a technician from there.",
+                IsRead = false,
+                CreatedAtUtc = createdAtUtc
+            },
+            new NotificationEntity
+            {
+                TenantId = tenant.Id,
+                User = technician,
+                Type = NotificationType.General,
+                Title = "Welcome to PropertyCare",
+                Message = "Work assigned to you shows up under My interventions.",
+                IsRead = false,
+                CreatedAtUtc = createdAtUtc
+            });
 
         await _ctx.SaveChangesAsync(ct);
     }
@@ -419,6 +510,27 @@ public class DynamicDataSeeder : IDatabaseSeeder
         user.PasswordHash = _hasher.HashPassword(user, password);
         return user;
     }
+
+    /// <summary>Overload for the first tenant, whose building type ids are fixed by the static seed.</summary>
+    private static BuildingEntity NewBuilding(
+        int tenantId,
+        int buildingTypeId,
+        string name,
+        string address,
+        double? latitude,
+        double? longitude,
+        DateTime createdAtUtc)
+        => new()
+        {
+            TenantId = tenantId,
+            BuildingTypeId = buildingTypeId,
+            Name = name,
+            NameNormalized = BuildingEntity.NormalizeName(name),
+            Address = address,
+            Latitude = latitude,
+            Longitude = longitude,
+            CreatedAtUtc = createdAtUtc
+        };
 
     private static BuildingEntity NewBuilding(
         int tenantId,

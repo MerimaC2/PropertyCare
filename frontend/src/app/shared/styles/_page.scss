@@ -78,6 +78,9 @@
 }
 
 // --- Chips ---
+// Shape only. The colours live in the global styles.scss: the dark variants key off
+// `body.dark-theme`, and Angular's view encapsulation rewrites that to
+// `body.dark-theme[_ngcontent-…]`, which never matches the real <body>.
 
 %chip {
   display: inline-block;
@@ -86,62 +89,14 @@
   font-size: 0.78rem;
   font-weight: 600;
   white-space: nowrap;
+  background: var(--pc-chip-bg);
+  color: var(--pc-chip-fg);
 }
 
 .status-chip {
   @extend %chip;
-
-  &.status-new {
-    background: #e3f2fd;
-    color: #1565c0;
-  }
-
-  &.status-assigned {
-    background: #ede7f6;
-    color: #5e35b1;
-  }
-
-  &.status-in_progress {
-    background: #fff8e1;
-    color: #b26a00;
-  }
-
-  &.status-on_hold {
-    background: #eceff1;
-    color: #546e7a;
-  }
-
-  &.status-completed {
-    background: #e8f5e9;
-    color: #2e7d32;
-  }
-
-  &.status-cancelled {
-    background: #fbe9e7;
-    color: #c62828;
-  }
 }
 
 .priority-chip {
   @extend %chip;
-
-  &.priority-low {
-    background: #eceff1;
-    color: #546e7a;
-  }
-
-  &.priority-med {
-    background: #e3f2fd;
-    color: #1565c0;
-  }
-
-  &.priority-high {
-    background: #fff3e0;
-    color: #e65100;
-  }
-
-  &.priority-crit {
-    background: #ffebee;
-    color: #b71c1c;
-  }
 }
