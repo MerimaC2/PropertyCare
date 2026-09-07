@@ -36,6 +36,9 @@ public sealed class AppExceptionHandler : IExceptionHandler
             ConflictException conflictEx => (
                 StatusCodes.Status409Conflict,
                 new ErrorDto { Code = "conflict", Message = conflictEx.Message }),
+            UnauthorizedException unauthorizedEx => (
+                StatusCodes.Status401Unauthorized,
+                new ErrorDto { Code = "unauthorized", Message = unauthorizedEx.Message }),
             ForbiddenException forbiddenEx => (
                 StatusCodes.Status403Forbidden,
                 new ErrorDto { Code = "forbidden", Message = forbiddenEx.Message }),
