@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PropertyCare.Application.Abstractions;
 using PropertyCare.Infrastructure.Database;
 
 namespace PropertyCare.Tests.Common;
@@ -9,8 +10,8 @@ namespace PropertyCare.Tests.Common;
 /// </summary>
 public sealed class FailingDbContext : DatabaseContext
 {
-    public FailingDbContext(DbContextOptions<DatabaseContext> options)
-        : base(options, TimeProvider.System)
+    public FailingDbContext(DbContextOptions<DatabaseContext> options, IAppCurrentUser currentUser)
+        : base(options, TimeProvider.System, currentUser)
     {
     }
 

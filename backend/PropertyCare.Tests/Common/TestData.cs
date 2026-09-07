@@ -8,11 +8,11 @@ namespace PropertyCare.Tests.Common;
 public static class TestData
 {
     public static AppUserEntity AddUser(
-        DatabaseContext ctx, int roleId, string email, bool isActive = true)
+        DatabaseContext ctx, int roleId, string email, bool isActive = true, int tenantId = 1)
     {
         var user = new AppUserEntity
         {
-            TenantId = 1,
+            TenantId = tenantId,
             RoleId = roleId,
             FirstName = "Test",
             LastName = "User",

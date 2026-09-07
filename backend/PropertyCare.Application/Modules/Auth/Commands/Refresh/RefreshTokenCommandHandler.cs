@@ -26,7 +26,10 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         var nowUtc = _clock.GetUtcNow().UtcDateTime;
         var tokenHash = _jwt.HashRefreshToken(request.RefreshToken);
 
+        // Like login, the refresh runs before a tenant is known - the token itself identifies
+        // the user, and the new access token carries that user's own tenant claim.
         var storedToken = await _ctx.RefreshTokens
+            .IgnoreQueryFilters()
             .Include(t => t.User)
             .ThenInclude(u => u.Role)
             .FirstOrDefaultAsync(t => t.TokenHash == tokenHash && !t.IsDeleted, ct)

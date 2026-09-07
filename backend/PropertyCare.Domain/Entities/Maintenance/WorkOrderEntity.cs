@@ -4,7 +4,7 @@ using PropertyCare.Domain.Entities.Identity;
 namespace PropertyCare.Domain.Entities.Maintenance;
 
 /// <summary>An intervention assigned to a technician for a maintenance request.</summary>
-public sealed class WorkOrderEntity : BaseEntity
+public sealed class WorkOrderEntity : BaseEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;

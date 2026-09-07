@@ -1,5 +1,6 @@
 using PropertyCare.Application.Abstractions;
 using PropertyCare.Application.Common;
+using PropertyCare.Application.Common.Exceptions;
 
 namespace PropertyCare.Application.Modules.MaintenanceRequests.Queries.ListForTriage;
 
@@ -7,15 +8,24 @@ public sealed class ListTriageRequestsQueryHandler
     : IRequestHandler<ListTriageRequestsQuery, PageResult<ListTriageRequestsQueryDto>>
 {
     private readonly IAppDbContext _ctx;
+    private readonly IAppCurrentUser _currentUser;
 
-    public ListTriageRequestsQueryHandler(IAppDbContext ctx) => _ctx = ctx;
+    public ListTriageRequestsQueryHandler(IAppDbContext ctx, IAppCurrentUser currentUser)
+    {
+        _ctx = ctx;
+        _currentUser = currentUser;
+    }
 
     public async Task<PageResult<ListTriageRequestsQueryDto>> Handle(
         ListTriageRequestsQuery request,
         CancellationToken ct)
     {
+        // This list had no tenant restriction at all, so triage showed every tenant's requests.
+        var tenantId = _currentUser.TenantId
+            ?? throw new ForbiddenException("User has no tenant.");
+
         var query = _ctx.MaintenanceRequests.AsNoTracking()
-            .Where(r => !r.IsDeleted);
+            .Where(r => r.TenantId == tenantId && !r.IsDeleted);
 
         // Backend filters
         if (!string.IsNullOrWhiteSpace(request.Search))

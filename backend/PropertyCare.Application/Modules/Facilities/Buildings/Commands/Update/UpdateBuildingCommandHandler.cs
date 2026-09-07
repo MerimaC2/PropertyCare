@@ -24,8 +24,9 @@ public sealed class UpdateBuildingCommandHandler : IRequestHandler<UpdateBuildin
             b => b.Id == request.Id && b.TenantId == tenantId && !b.IsDeleted, ct)
             ?? throw new NotFoundException("Building not found.");
 
-        var typeExists = await _ctx.BuildingTypes
-            .AnyAsync(t => t.Id == request.BuildingTypeId && !t.IsDeleted, ct);
+        // Same rule as on create: the type has to belong to this tenant.
+        var typeExists = await _ctx.BuildingTypes.AnyAsync(
+            t => t.Id == request.BuildingTypeId && t.TenantId == tenantId && !t.IsDeleted, ct);
         if (!typeExists)
             throw new ValidationException("Building type not found.");
 

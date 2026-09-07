@@ -4,7 +4,7 @@ using PropertyCare.Domain.Entities.Identity;
 namespace PropertyCare.Domain.Entities.Maintenance;
 
 /// <summary>A short technician note with the time spent on a work order.</summary>
-public sealed class WorkLogEntity : BaseEntity
+public sealed class WorkLogEntity : BaseEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public TenantEntity Tenant { get; set; } = null!;

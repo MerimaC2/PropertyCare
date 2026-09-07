@@ -24,9 +24,12 @@ public sealed class CreateMaintenanceRequestCommandHandler
         var tenantId = _currentUser.TenantId
             ?? throw new ForbiddenException("User has no tenant.");
 
-        // 1. Building must exist.
+        // Every check below also pins the tenant. Matching on the id alone was enough to build a
+        // request of one tenant whose foreign keys pointed at another tenant's building or asset.
+
+        // 1. Building must exist in this tenant.
         var buildingExists = await _ctx.Buildings
-            .AnyAsync(b => b.Id == request.BuildingId && !b.IsDeleted, ct);
+            .AnyAsync(b => b.Id == request.BuildingId && b.TenantId == tenantId && !b.IsDeleted, ct);
         if (!buildingExists)
             throw new ValidationException("Building not found.");
 
@@ -34,7 +37,11 @@ public sealed class CreateMaintenanceRequestCommandHandler
         if (request.UnitId.HasValue)
         {
             var unitValid = await _ctx.Units.AnyAsync(
-                u => u.Id == request.UnitId && u.BuildingId == request.BuildingId && !u.IsDeleted, ct);
+                u => u.Id == request.UnitId
+                    && u.BuildingId == request.BuildingId
+                    && u.TenantId == tenantId
+                    && !u.IsDeleted,
+                ct);
             if (!unitValid)
                 throw new ValidationException("Unit not found in the selected building.");
         }
@@ -43,20 +50,26 @@ public sealed class CreateMaintenanceRequestCommandHandler
         if (request.AssetId.HasValue)
         {
             var assetValid = await _ctx.Assets.AnyAsync(
-                a => a.Id == request.AssetId && a.UnitId == request.UnitId && !a.IsDeleted, ct);
+                a => a.Id == request.AssetId
+                    && a.UnitId == request.UnitId
+                    && a.TenantId == tenantId
+                    && !a.IsDeleted,
+                ct);
             if (!assetValid)
                 throw new ValidationException("Asset not found in the selected unit.");
         }
 
-        // 4. Priority must exist.
+        // 4. Priority must exist in this tenant.
         var priorityExists = await _ctx.RequestPriorities
-            .AnyAsync(p => p.Id == request.PriorityId && !p.IsDeleted, ct);
+            .AnyAsync(p => p.Id == request.PriorityId && p.TenantId == tenantId && !p.IsDeleted, ct);
         if (!priorityExists)
             throw new ValidationException("Priority not found.");
 
-        // 5. New requests always start in the NEW status.
+        // 5. New requests always start in the NEW status of their own tenant.
         var newStatus = await _ctx.RequestStatuses
-            .FirstOrDefaultAsync(s => s.Abrv == RequestStatusEntity.Codes.New && !s.IsDeleted, ct)
+            .FirstOrDefaultAsync(
+                s => s.Abrv == RequestStatusEntity.Codes.New && s.TenantId == tenantId && !s.IsDeleted,
+                ct)
             ?? throw new NotFoundException("Initial request status is not configured.");
 
         var entity = new MaintenanceRequestEntity

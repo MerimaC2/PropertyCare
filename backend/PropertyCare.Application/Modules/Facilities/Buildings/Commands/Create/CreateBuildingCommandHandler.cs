@@ -20,8 +20,9 @@ public sealed class CreateBuildingCommandHandler : IRequestHandler<CreateBuildin
         var tenantId = _currentUser.TenantId
             ?? throw new ForbiddenException("User has no tenant.");
 
-        var typeExists = await _ctx.BuildingTypes
-            .AnyAsync(t => t.Id == request.BuildingTypeId && !t.IsDeleted, ct);
+        // The type has to belong to this tenant too, not just exist somewhere in the table.
+        var typeExists = await _ctx.BuildingTypes.AnyAsync(
+            t => t.Id == request.BuildingTypeId && t.TenantId == tenantId && !t.IsDeleted, ct);
         if (!typeExists)
             throw new ValidationException("Building type not found.");
 

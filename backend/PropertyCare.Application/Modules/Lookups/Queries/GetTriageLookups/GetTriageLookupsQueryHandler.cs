@@ -1,4 +1,5 @@
 using PropertyCare.Application.Abstractions;
+using PropertyCare.Application.Common.Exceptions;
 using PropertyCare.Domain.Entities.Identity;
 
 namespace PropertyCare.Application.Modules.Lookups.Queries.GetTriageLookups;
@@ -7,33 +8,45 @@ public sealed class GetTriageLookupsQueryHandler
     : IRequestHandler<GetTriageLookupsQuery, GetTriageLookupsQueryDto>
 {
     private readonly IAppDbContext _ctx;
+    private readonly IAppCurrentUser _currentUser;
 
-    public GetTriageLookupsQueryHandler(IAppDbContext ctx) => _ctx = ctx;
+    public GetTriageLookupsQueryHandler(IAppDbContext ctx, IAppCurrentUser currentUser)
+    {
+        _ctx = ctx;
+        _currentUser = currentUser;
+    }
 
     public async Task<GetTriageLookupsQueryDto> Handle(
         GetTriageLookupsQuery request,
         CancellationToken ct)
     {
+        // Without this the admin of one tenant could pick a technician from another tenant.
+        var tenantId = _currentUser.TenantId
+            ?? throw new ForbiddenException("User has no tenant.");
+
         var technicians = await _ctx.Users.AsNoTracking()
-            .Where(u => u.Role.Name == UserRoleEntity.Names.Technician && u.IsActive && !u.IsDeleted)
+            .Where(u => u.TenantId == tenantId
+                && u.Role.Name == UserRoleEntity.Names.Technician
+                && u.IsActive
+                && !u.IsDeleted)
             .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
             .Select(u => new LookupItemDto { Id = u.Id, Name = u.FirstName + " " + u.LastName })
             .ToListAsync(ct);
 
         var statuses = await _ctx.RequestStatuses.AsNoTracking()
-            .Where(s => !s.IsDeleted)
+            .Where(s => s.TenantId == tenantId && !s.IsDeleted)
             .OrderBy(s => s.Id)
             .Select(s => new LookupItemDto { Id = s.Id, Name = s.Name })
             .ToListAsync(ct);
 
         var priorities = await _ctx.RequestPriorities.AsNoTracking()
-            .Where(p => !p.IsDeleted)
+            .Where(p => p.TenantId == tenantId && !p.IsDeleted)
             .OrderBy(p => p.Id)
             .Select(p => new LookupItemDto { Id = p.Id, Name = p.Name })
             .ToListAsync(ct);
 
         var buildings = await _ctx.Buildings.AsNoTracking()
-            .Where(b => !b.IsDeleted)
+            .Where(b => b.TenantId == tenantId && !b.IsDeleted)
             .OrderBy(b => b.Name)
             .Select(b => new LookupItemDto { Id = b.Id, Name = b.Name })
             .ToListAsync(ct);

@@ -38,7 +38,10 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, LoginCom
     {
         var email = request.Email.Trim().ToLowerInvariant();
 
+        // Login runs before a tenant is known, so it is one of the few places allowed past the
+        // global tenant filter. The e-mail is unique across the whole database.
         var user = await _ctx.Users
+            .IgnoreQueryFilters()
             .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted, ct);
 
