@@ -113,7 +113,9 @@ export class BuildingDialogComponent implements AfterViewInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    // While the async name validator is still running the form status is PENDING, which means
+    // form.invalid is false - a fast click would otherwise sail past the uniqueness check.
+    if (this.form.invalid || this.form.pending) {
       this.form.markAllAsTouched();
       return;
     }

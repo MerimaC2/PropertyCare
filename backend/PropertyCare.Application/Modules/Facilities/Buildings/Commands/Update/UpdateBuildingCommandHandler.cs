@@ -1,5 +1,6 @@
 using PropertyCare.Application.Abstractions;
 using PropertyCare.Application.Common.Exceptions;
+using PropertyCare.Domain.Entities.Facilities;
 
 namespace PropertyCare.Application.Modules.Facilities.Buildings.Commands.Update;
 
@@ -28,7 +29,19 @@ public sealed class UpdateBuildingCommandHandler : IRequestHandler<UpdateBuildin
         if (!typeExists)
             throw new ValidationException("Building type not found.");
 
+        // Same rule as on create, except the building may of course keep its own name.
+        var nameNormalized = BuildingEntity.NormalizeName(request.Name);
+        var nameTaken = await _ctx.Buildings.AnyAsync(
+            b => b.TenantId == tenantId
+                && b.NameNormalized == nameNormalized
+                && b.Id != building.Id
+                && !b.IsDeleted,
+            ct);
+        if (nameTaken)
+            throw new ConflictException("A building with this name already exists.");
+
         building.Name = request.Name.Trim();
+        building.NameNormalized = nameNormalized;
         building.Address = request.Address?.Trim();
         building.BuildingTypeId = request.BuildingTypeId;
         building.Latitude = request.Latitude;

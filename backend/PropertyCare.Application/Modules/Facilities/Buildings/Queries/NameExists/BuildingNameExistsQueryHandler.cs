@@ -1,5 +1,6 @@
 using PropertyCare.Application.Abstractions;
 using PropertyCare.Application.Common.Exceptions;
+using PropertyCare.Domain.Entities.Facilities;
 
 namespace PropertyCare.Application.Modules.Facilities.Buildings.Queries.NameExists;
 
@@ -20,14 +21,14 @@ public sealed class BuildingNameExistsQueryHandler
         var tenantId = _currentUser.TenantId
             ?? throw new ForbiddenException("User has no tenant.");
 
-        var name = (request.Name ?? string.Empty).Trim();
-        if (name.Length == 0)
+        var nameNormalized = BuildingEntity.NormalizeName(request.Name);
+        if (nameNormalized.Length == 0)
             return false;
 
         return await _ctx.Buildings.AnyAsync(
             b => b.TenantId == tenantId
                 && !b.IsDeleted
-                && b.Name == name
+                && b.NameNormalized == nameNormalized
                 && (request.ExcludeId == null || b.Id != request.ExcludeId),
             ct);
     }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PropertyCare.Application.Common.Exceptions;
 using PropertyCare.Application.Modules.Facilities.Buildings.Commands.Create;
 using PropertyCare.Application.Modules.Facilities.Buildings.Commands.Delete;
+using PropertyCare.Application.Modules.Facilities.Buildings.Commands.Update;
 using PropertyCare.Domain.Entities.Facilities;
 using PropertyCare.Tests.Common;
 
@@ -46,6 +47,102 @@ public class BuildingCommandHandlersTests
             () => handler.Handle(
                 new CreateBuildingCommand { Name = "X", BuildingTypeId = 999 },
                 CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Create_NameAlreadyTakenIgnoringCaseAndSpacing_ThrowsConflictException()
+    {
+        await using var ctx = TestDbContextFactory.Create();
+        var admin = TestData.AddUser(ctx, roleId: 1, email: "admin@test.ba");
+        TestData.AddBuilding(ctx, "Alpha Business Center");
+
+        var handler = new CreateBuildingCommandHandler(
+            ctx, new FakeCurrentUser { UserId = admin.Id, TenantId = 1 });
+
+        await Assert.ThrowsAsync<ConflictException>(
+            () => handler.Handle(
+                new CreateBuildingCommand { Name = "  alpha BUSINESS center ", BuildingTypeId = 1 },
+                CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Create_NameTakenByAnotherTenant_IsAllowed()
+    {
+        await using var ctx = TestDbContextFactory.Create();
+        var admin = TestData.AddUser(ctx, roleId: 1, email: "admin@test.ba");
+        TestData.AddBuilding(ctx, "Shared Name", tenantId: 2);
+
+        var handler = new CreateBuildingCommandHandler(
+            ctx, new FakeCurrentUser { UserId = admin.Id, TenantId = 1 });
+
+        var id = await handler.Handle(
+            new CreateBuildingCommand { Name = "Shared Name", BuildingTypeId = 1 },
+            CancellationToken.None);
+
+        Assert.True(id > 0);
+    }
+
+    [Fact]
+    public async Task Update_NameTakenByAnotherBuilding_ThrowsConflictException()
+    {
+        await using var ctx = TestDbContextFactory.Create();
+        var admin = TestData.AddUser(ctx, roleId: 1, email: "admin@test.ba");
+        TestData.AddBuilding(ctx, "Park Residence");
+        var edited = TestData.AddBuilding(ctx, "Logistics Hub East");
+
+        var handler = new UpdateBuildingCommandHandler(
+            ctx, new FakeCurrentUser { UserId = admin.Id, TenantId = 1 });
+
+        await Assert.ThrowsAsync<ConflictException>(
+            () => handler.Handle(
+                new UpdateBuildingCommand
+                {
+                    Id = edited.Id,
+                    Name = "park residence",
+                    BuildingTypeId = 1
+                },
+                CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Update_BuildingKeepsItsOwnName_Succeeds()
+    {
+        await using var ctx = TestDbContextFactory.Create();
+        var admin = TestData.AddUser(ctx, roleId: 1, email: "admin@test.ba");
+        var building = TestData.AddBuilding(ctx, "Park Residence");
+
+        var handler = new UpdateBuildingCommandHandler(
+            ctx, new FakeCurrentUser { UserId = admin.Id, TenantId = 1 });
+
+        await handler.Handle(
+            new UpdateBuildingCommand
+            {
+                Id = building.Id,
+                Name = "Park Residence",
+                Address = "New Address 5",
+                BuildingTypeId = 1
+            },
+            CancellationToken.None);
+
+        var saved = await ctx.Buildings.SingleAsync(b => b.Id == building.Id);
+        Assert.Equal("New Address 5", saved.Address);
+    }
+
+    [Fact]
+    public async Task Create_StoresTheNormalizedNameAlongsideTheDisplayName()
+    {
+        await using var ctx = TestDbContextFactory.Create();
+        var admin = TestData.AddUser(ctx, roleId: 1, email: "admin@test.ba");
+        var handler = new CreateBuildingCommandHandler(
+            ctx, new FakeCurrentUser { UserId = admin.Id, TenantId = 1 });
+
+        var id = await handler.Handle(
+            new CreateBuildingCommand { Name = "  Riverside Lofts  ", BuildingTypeId = 1 },
+            CancellationToken.None);
+
+        var saved = await ctx.Buildings.SingleAsync(b => b.Id == id);
+        Assert.Equal("Riverside Lofts", saved.Name);
+        Assert.Equal("RIVERSIDE LOFTS", saved.NameNormalized);
     }
 
     [Fact]

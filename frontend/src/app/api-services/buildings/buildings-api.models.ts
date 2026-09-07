@@ -14,6 +14,10 @@ export interface BuildingDto {
 export interface ListBuildingsQuery {
   paging: PageRequest;
   search?: string | null;
+  buildingTypeId?: number | null;
+  minUnitCount?: number | null;
+  maxUnitCount?: number | null;
+  hasLocation?: boolean | null;
 }
 
 /** Body for both create and update (the id travels in the URL for update). */

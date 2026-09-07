@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
@@ -15,7 +15,10 @@ import {
 } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { BuildingDialogComponent } from './building-dialog/building-dialog.component';
 
-/** Admin management of buildings: searchable, paged list with create/edit/delete. */
+/**
+ * Admin management of buildings: paged list with create/edit/delete and 5 filter parameters
+ * (search term, type, minimum and maximum unit count, and whether the building is on the map).
+ */
 @Component({
   selector: 'app-buildings',
   templateUrl: './buildings.component.html',
@@ -25,7 +28,7 @@ import { BuildingDialogComponent } from './building-dialog/building-dialog.compo
 export class BuildingsComponent implements OnInit {
   readonly displayedColumns = ['name', 'type', 'address', 'units', 'location', 'actions'];
 
-  searchControl = new FormControl<string>('', { nonNullable: true });
+  filterForm: FormGroup;
   items: BuildingDto[] = [];
   buildingTypes: LookupItemDto[] = [];
   isLoading = false;
@@ -34,12 +37,21 @@ export class BuildingsComponent implements OnInit {
   currentPage = 1;
 
   constructor(
+    private formBuilder: FormBuilder,
     private buildingsApi: BuildingsApiService,
     private lookupsApi: LookupsApiService,
     private dialog: MatDialog,
     private toaster: ToasterService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    this.filterForm = this.formBuilder.group({
+      search: [''],
+      buildingTypeId: [null],
+      minUnitCount: [null],
+      maxUnitCount: [null],
+      hasLocation: [null]
+    });
+  }
 
   ngOnInit(): void {
     this.lookupsApi.getBuildingTypes().subscribe({
@@ -54,10 +66,16 @@ export class BuildingsComponent implements OnInit {
 
   loadData(): void {
     this.isLoading = true;
+    const filters = this.filterForm.value;
+
     this.buildingsApi
       .list({
         paging: { page: this.currentPage, pageSize: this.pageSize },
-        search: this.searchControl.value || null
+        search: filters.search || null,
+        buildingTypeId: filters.buildingTypeId,
+        minUnitCount: filters.minUnitCount,
+        maxUnitCount: filters.maxUnitCount,
+        hasLocation: filters.hasLocation
       })
       .subscribe({
         next: result => {
@@ -68,15 +86,21 @@ export class BuildingsComponent implements OnInit {
           this.isLoading = false;
           this.cdr.markForCheck();
         },
-        error: () => {
+        error: (err: HttpErrorResponse) => {
           this.isLoading = false;
           this.cdr.markForCheck();
-          this.toaster.error('Failed to load buildings.');
+          this.toaster.error(this.errorMessage(err, 'Failed to load buildings.'));
         }
       });
   }
 
-  onSearch(): void {
+  onApplyFilters(): void {
+    this.currentPage = 1;
+    this.loadData();
+  }
+
+  onResetFilters(): void {
+    this.filterForm.reset({ search: '' });
     this.currentPage = 1;
     this.loadData();
   }
@@ -157,6 +181,10 @@ export class BuildingsComponent implements OnInit {
   }
 
   private errorMessage(err: HttpErrorResponse, fallback: string): string {
+    const fieldErrors = err.error?.errors as { field: string; message: string }[] | undefined;
+    if (fieldErrors?.length) {
+      return fieldErrors.map(e => e.message).join(' ');
+    }
     return err.error?.message ?? fallback;
   }
 }

@@ -25,10 +25,19 @@ public sealed class CreateBuildingCommandHandler : IRequestHandler<CreateBuildin
         if (!typeExists)
             throw new ValidationException("Building type not found.");
 
+        // The frontend async validator is only a convenience; this is the check that counts,
+        // and the unique index behind it catches anything that slips through a race.
+        var nameNormalized = BuildingEntity.NormalizeName(request.Name);
+        var nameTaken = await _ctx.Buildings.AnyAsync(
+            b => b.TenantId == tenantId && b.NameNormalized == nameNormalized && !b.IsDeleted, ct);
+        if (nameTaken)
+            throw new ConflictException("A building with this name already exists.");
+
         var entity = new BuildingEntity
         {
             TenantId = tenantId,
             Name = request.Name.Trim(),
+            NameNormalized = nameNormalized,
             Address = request.Address?.Trim(),
             BuildingTypeId = request.BuildingTypeId,
             Latitude = request.Latitude,

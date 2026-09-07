@@ -14,6 +14,17 @@ public class BuildingEntityConfiguration : IEntityTypeConfiguration<BuildingEnti
             .IsRequired()
             .HasMaxLength(BuildingEntity.Constraints.NameMaxLength);
 
+        builder.Property(x => x.NameNormalized)
+            .IsRequired()
+            .HasMaxLength(BuildingEntity.Constraints.NameMaxLength);
+
+        // Names are unique within a tenant. Filtered on IsDeleted so a soft-deleted building does
+        // not keep its name reserved forever.
+        builder.HasIndex(x => new { x.TenantId, x.NameNormalized })
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0")
+            .HasDatabaseName("IX_Buildings_TenantId_NameNormalized");
+
         builder.Property(x => x.Address)
             .HasMaxLength(BuildingEntity.Constraints.AddressMaxLength);
 

@@ -1,7 +1,11 @@
 @use '../../../shared/styles/page' as *;
 
 .filter-bar mat-form-field {
-  min-width: 240px;
+  min-width: 200px;
+
+  &.narrow {
+    min-width: 120px;
+  }
 }
 
 table {

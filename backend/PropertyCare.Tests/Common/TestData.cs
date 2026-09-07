@@ -25,13 +25,15 @@ public static class TestData
         return user;
     }
 
-    public static BuildingEntity AddBuilding(DatabaseContext ctx, string name = "Test Building")
+    public static BuildingEntity AddBuilding(
+        DatabaseContext ctx, string name = "Test Building", int tenantId = 1)
     {
         var building = new BuildingEntity
         {
-            TenantId = 1,
+            TenantId = tenantId,
             BuildingTypeId = 1,
-            Name = name
+            Name = name,
+            NameNormalized = BuildingEntity.NormalizeName(name)
         };
         ctx.Buildings.Add(building);
         ctx.SaveChanges();
