@@ -28,10 +28,16 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
   isLoading = false;
   apiError: string | null = null;
 
-  /** Photos selected for upload, with a local preview URL each. */
-  photos: { file: File; url: string }[] = [];
+  /** Photos selected for upload, with a local preview URL and their upload state. */
+  photos: { file: File; url: string; uploaded: boolean }[] = [];
   isUploading = false;
   uploadProgress = 0;
+
+  /**
+   * Id of the request created by the first submit. Once it is set the request exists on the server,
+   * so a further submit only retries the photos that failed instead of creating a second request.
+   */
+  createdRequestId: number | null = null;
 
   private readonly allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
   private readonly maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB, mirrors the backend
@@ -49,7 +55,10 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     // Frontend validation mirrors the backend CreateMaintenanceRequestCommandValidator.
     this.form = this.formBuilder.group({
       title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(150)]],
-      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(2000)]],
+      description: [
+        '',
+        [Validators.required, Validators.minLength(10), Validators.maxLength(2000)]
+      ],
       buildingId: [null, Validators.required],
       unitId: [null],
       assetId: [null],
@@ -86,6 +95,11 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     return this.lookups?.assets.filter(a => a.unitId === unitId) ?? [];
   }
 
+  /** True once the request exists on the server and only its photo uploads are left to finish. */
+  get isRetryingUpload(): boolean {
+    return this.createdRequestId !== null;
+  }
+
   /** Validates a picked image, lets the user crop it, then queues the cropped result with a preview. */
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -116,7 +130,7 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
           this.toaster.error('The cropped image is larger than 5 MB.');
           return;
         }
-        this.photos.push({ file: cropped, url: URL.createObjectURL(cropped) });
+        this.photos.push({ file: cropped, url: URL.createObjectURL(cropped), uploaded: false });
         this.cdr.markForCheck();
       });
   }
@@ -136,6 +150,12 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     this.apiError = null;
 
+    // The request was already created by an earlier submit - never create a second one.
+    if (this.createdRequestId !== null) {
+      this.uploadPhotos(this.createdRequestId);
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -144,6 +164,9 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.requestsApi.create(this.form.value).subscribe({
       next: requestId => {
+        this.createdRequestId = requestId;
+        this.form.disable();
+
         if (this.photos.length === 0) {
           this.finishSuccess();
           return;
@@ -162,14 +185,21 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Uploads queued photos one by one, tracking overall progress across all files. */
+  /** Uploads the photos that are not stored yet, tracking overall progress across them. */
   private uploadPhotos(requestId: number): void {
+    const pending = this.photos.filter(photo => !photo.uploaded);
+    if (pending.length === 0) {
+      this.finishSuccess();
+      return;
+    }
+
+    this.isLoading = true;
     this.isUploading = true;
     this.uploadProgress = 0;
-    const total = this.photos.length;
+    const total = pending.length;
     let completed = 0;
 
-    from(this.photos)
+    from(pending)
       .pipe(
         concatMap(photo =>
           this.requestsApi.uploadImage(requestId, photo.file).pipe(
@@ -180,7 +210,9 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
                 this.cdr.markForCheck();
               }
             }),
-            last()
+            last(),
+            // Remember what already reached the server so a retry does not send it twice.
+            tap(() => (photo.uploaded = true))
           )
         )
       )
@@ -194,7 +226,8 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.isUploading = false;
           this.apiError =
-            error.error?.message ?? 'The request was created, but some photos could not be uploaded.';
+            error.error?.message ??
+            'Your request was created, but some photos could not be uploaded. Use "Retry photo upload" to send only the ones that failed.';
           this.toaster.error('Some photos could not be uploaded.');
           this.cdr.markForCheck();
         },
@@ -205,8 +238,9 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
   private finishSuccess(): void {
     this.isLoading = false;
     this.isUploading = false;
+    this.createdRequestId = null;
     this.clearPhotos();
-    // A "request submitted" notification was just created on the server — refresh the bell badge.
+    // A "request submitted" notification was just created on the server - refresh the bell badge.
     this.notifications.refresh();
     this.toaster.success('Your request was submitted.');
     this.router.navigate(['/reporter/my-requests']);

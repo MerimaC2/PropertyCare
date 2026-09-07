@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { LookupsApiService } from '../../../api-services/lookups/lookups-api.service';
 import { RequestFormLookupsDto } from '../../../api-services/lookups/lookups-api.models';
@@ -7,6 +8,10 @@ import { MaintenanceRequestsApiService } from '../../../api-services/maintenance
 import { MyMaintenanceRequestDto } from '../../../api-services/maintenance-requests/maintenance-requests-api.models';
 import { DEFAULT_PAGE_SIZE } from '../../../core/models/paging/page-request';
 import { ToasterService } from '../../../core/services/toaster.service';
+import {
+  RequestPhotosDialogComponent,
+  RequestPhotosDialogData
+} from '../../../shared/components/request-photos-dialog/request-photos-dialog.component';
 
 /**
  * "My requests" list with 5 filter parameters
@@ -19,7 +24,15 @@ import { ToasterService } from '../../../core/services/toaster.service';
   standalone: false
 })
 export class MyRequestsComponent implements OnInit {
-  readonly displayedColumns = ['title', 'building', 'asset', 'priority', 'status', 'createdAtUtc'];
+  readonly displayedColumns = [
+    'title',
+    'building',
+    'asset',
+    'priority',
+    'status',
+    'createdAtUtc',
+    'photos'
+  ];
 
   filterForm: FormGroup;
   lookups: RequestFormLookupsDto | null = null;
@@ -35,6 +48,7 @@ export class MyRequestsComponent implements OnInit {
     private requestsApi: MaintenanceRequestsApiService,
     private lookupsApi: LookupsApiService,
     private toaster: ToasterService,
+    private dialog: MatDialog,
     private cdr: ChangeDetectorRef
   ) {
     this.filterForm = this.formBuilder.group({
@@ -102,6 +116,12 @@ export class MyRequestsComponent implements OnInit {
     this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
     this.loadData();
+  }
+
+  /** Opens the attached photos, which are fetched through the authorized image endpoint. */
+  openPhotos(item: MyMaintenanceRequestDto): void {
+    const data: RequestPhotosDialogData = { requestId: item.id, requestTitle: item.title };
+    this.dialog.open(RequestPhotosDialogComponent, { data, width: '720px', maxWidth: '92vw' });
   }
 
   statusClass(statusAbrv: string): string {

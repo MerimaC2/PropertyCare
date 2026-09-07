@@ -47,4 +47,14 @@ export class MaintenanceRequestsApiService {
   listImages(requestId: number): Observable<RequestImageDto[]> {
     return this.http.get<RequestImageDto[]>(`${this.apiUrl}/${requestId}/images`);
   }
+
+  /**
+   * Downloads one attachment. Attachments are not static files any more, so the request carries the
+   * bearer token and the result has to be turned into an object URL before it can be displayed.
+   */
+  getImageContent(requestId: number, imageId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${requestId}/images/${imageId}/content`, {
+      responseType: 'blob'
+    });
+  }
 }

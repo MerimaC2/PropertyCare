@@ -18,25 +18,32 @@ public sealed class ListRequestImagesQueryHandler
     public async Task<IReadOnlyList<RequestImageDto>> Handle(
         ListRequestImagesQuery request, CancellationToken ct)
     {
-        var userId = _currentUser.UserId
-            ?? throw new ForbiddenException("User is not authenticated.");
-
-        var owns = await _ctx.MaintenanceRequests.AnyAsync(
-            r => r.Id == request.RequestId && r.CreatedByUserId == userId && !r.IsDeleted, ct);
-        if (!owns)
+        // Reporter, administrator and technician each see a different slice of the requests.
+        var canView = await RequestAccess.CanViewAsync(_ctx, _currentUser, request.RequestId, ct);
+        if (!canView)
             throw new NotFoundException("Maintenance request not found.");
 
-        return await _ctx.RequestImages.AsNoTracking()
+        var images = await _ctx.RequestImages.AsNoTracking()
             .Where(i => i.RequestId == request.RequestId && !i.IsDeleted)
             .OrderBy(i => i.CreatedAtUtc)
+            .Select(i => new
+            {
+                i.Id,
+                i.FileName,
+                i.ContentType,
+                i.SizeBytes
+            })
+            .ToListAsync(ct);
+
+        return images
             .Select(i => new RequestImageDto
             {
                 Id = i.Id,
                 FileName = i.FileName,
                 ContentType = i.ContentType,
                 SizeBytes = i.SizeBytes,
-                Url = "/" + i.RelativePath
+                Url = RequestImageDto.BuildContentUrl(request.RequestId, i.Id)
             })
-            .ToListAsync(ct);
+            .ToList();
     }
 }

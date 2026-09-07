@@ -123,7 +123,9 @@
         accept="image/jpeg,image/png,image/webp"
         (change)="onFileSelected($event)"
       />
-      <p class="photos-hint">Pick an image and crop it before it's added. JPEG, PNG or WebP, up to 5 MB each.</p>
+      <p class="photos-hint">
+        Pick an image and crop it before it's added. JPEG, PNG or WebP, up to 5 MB each.
+      </p>
     </div>
 
     <div class="api-error" *ngIf="apiError">
@@ -137,9 +139,19 @@
     </div>
 
     <div class="form-actions">
-      <a mat-stroked-button routerLink="../my-requests">Cancel</a>
+      <a mat-stroked-button routerLink="../my-requests">{{
+        isRetryingUpload ? 'Leave' : 'Cancel'
+      }}</a>
       <button mat-flat-button color="primary" type="submit" [disabled]="isLoading">
-        {{ isUploading ? 'Uploading...' : (isLoading ? 'Submitting...' : 'Submit request') }}
+        {{
+          isUploading
+            ? 'Uploading...'
+            : isLoading
+              ? 'Submitting...'
+              : isRetryingUpload
+                ? 'Retry photo upload'
+                : 'Submit request'
+        }}
       </button>
     </div>
 
