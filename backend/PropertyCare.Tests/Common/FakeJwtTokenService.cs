@@ -6,13 +6,22 @@ namespace PropertyCare.Tests.Common;
 /// <summary>Issues predictable tokens so handler tests do not need real signing keys.</summary>
 public sealed class FakeJwtTokenService : IJwtTokenService
 {
-    public JwtTokenPair IssueTokens(AppUserEntity user) => new()
+    private int _issueCount;
+
+    public JwtTokenPair IssueTokens(AppUserEntity user)
     {
-        AccessToken = $"access-{user.Id}",
-        AccessTokenExpiresAtUtc = DateTime.UtcNow.AddMinutes(15),
-        RefreshTokenRaw = $"refresh-{user.Id}",
-        RefreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(14)
-    };
+        // Each call has to produce a different refresh token, otherwise rotation would be
+        // indistinguishable from reusing the old one.
+        var serial = ++_issueCount;
+
+        return new JwtTokenPair
+        {
+            AccessToken = $"access-{user.Id}-{serial}",
+            AccessTokenExpiresAtUtc = DateTime.UtcNow.AddMinutes(15),
+            RefreshTokenRaw = $"refresh-{user.Id}-{serial}",
+            RefreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(14)
+        };
+    }
 
     public string HashRefreshToken(string rawToken) => $"hashed:{rawToken}";
 }

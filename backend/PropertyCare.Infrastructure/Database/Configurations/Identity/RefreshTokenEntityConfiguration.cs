@@ -14,9 +14,6 @@ public class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<RefreshT
             .IsRequired()
             .HasMaxLength(RefreshTokenEntity.Constraints.TokenHashMaxLength);
 
-        builder.Property(x => x.Fingerprint)
-            .HasMaxLength(RefreshTokenEntity.Constraints.FingerprintMaxLength);
-
         builder.HasIndex(x => x.TokenHash)
             .IsUnique();
 

@@ -72,7 +72,6 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, LoginCom
             UserId = user.Id,
             TokenHash = _jwt.HashRefreshToken(tokenPair.RefreshTokenRaw),
             ExpiresAtUtc = tokenPair.RefreshTokenExpiresAtUtc,
-            Fingerprint = request.Fingerprint,
             IsRevoked = false,
             CreatedAtUtc = _clock.GetUtcNow().UtcDateTime
         });
