@@ -36,14 +36,18 @@ public sealed class ListMyMaintenanceRequestsQueryHandler
         if (request.BuildingId.HasValue)
             query = query.Where(r => r.BuildingId == request.BuildingId);
 
+        // The picked days are read as UTC calendar days, which is the same scale CreatedAtUtc is
+        // stored on. "To" is turned into the start of the next day so the whole day is included.
         if (request.DateFrom.HasValue)
-            query = query.Where(r => r.CreatedAtUtc >= request.DateFrom.Value);
+        {
+            var from = request.DateFrom.Value.ToDateTime(TimeOnly.MinValue);
+            query = query.Where(r => r.CreatedAtUtc >= from);
+        }
 
         if (request.DateTo.HasValue)
         {
-            // Include the whole "to" day.
-            var dateToExclusive = request.DateTo.Value.Date.AddDays(1);
-            query = query.Where(r => r.CreatedAtUtc < dateToExclusive);
+            var toExclusive = request.DateTo.Value.AddDays(1).ToDateTime(TimeOnly.MinValue);
+            query = query.Where(r => r.CreatedAtUtc < toExclusive);
         }
 
         var projected = query

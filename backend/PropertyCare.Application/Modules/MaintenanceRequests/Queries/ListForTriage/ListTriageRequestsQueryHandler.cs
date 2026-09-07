@@ -43,13 +43,17 @@ public sealed class ListTriageRequestsQueryHandler
         if (request.BuildingId.HasValue)
             query = query.Where(r => r.BuildingId == request.BuildingId);
 
+        // Same rule as on the reporter list: UTC calendar days, "to" inclusive.
         if (request.DateFrom.HasValue)
-            query = query.Where(r => r.CreatedAtUtc >= request.DateFrom.Value);
+        {
+            var from = request.DateFrom.Value.ToDateTime(TimeOnly.MinValue);
+            query = query.Where(r => r.CreatedAtUtc >= from);
+        }
 
         if (request.DateTo.HasValue)
         {
-            var dateToExclusive = request.DateTo.Value.Date.AddDays(1);
-            query = query.Where(r => r.CreatedAtUtc < dateToExclusive);
+            var toExclusive = request.DateTo.Value.AddDays(1).ToDateTime(TimeOnly.MinValue);
+            query = query.Where(r => r.CreatedAtUtc < toExclusive);
         }
 
         // Backend column sorting

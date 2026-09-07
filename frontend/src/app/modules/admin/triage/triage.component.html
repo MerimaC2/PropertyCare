@@ -119,7 +119,7 @@
 
     <ng-container matColumnDef="createdAtUtc">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
-      <td mat-cell *matCellDef="let item">{{ item.createdAtUtc + 'Z' | date: 'short' }}</td>
+      <td mat-cell *matCellDef="let item">{{ item.createdAtUtc | date: 'short' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
