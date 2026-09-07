@@ -10,6 +10,8 @@ export interface InterventionDto {
   requestTitle: string;
   buildingName: string;
   statusName: string;
+  /** True once the order is completed or cancelled, so no further work can be logged. */
+  statusIsTerminal: boolean;
   createdAtUtc: string;
   totalMinutes: number;
   logs: WorkLogDto[];

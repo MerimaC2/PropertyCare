@@ -7,6 +7,10 @@ public sealed class InterventionDto
     public string RequestTitle { get; set; } = null!;
     public string BuildingName { get; set; } = null!;
     public string StatusName { get; set; } = null!;
+
+    /// <summary>True once the order is completed or cancelled, so no further work can be logged.</summary>
+    public bool StatusIsTerminal { get; set; }
+
     public DateTime CreatedAtUtc { get; set; }
     public int TotalMinutes { get; set; }
     public IReadOnlyList<WorkLogDto> Logs { get; set; } = [];

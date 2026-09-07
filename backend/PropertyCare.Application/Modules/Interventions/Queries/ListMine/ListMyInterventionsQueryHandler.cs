@@ -30,6 +30,7 @@ public sealed class ListMyInterventionsQueryHandler
                 RequestTitle = w.Request.Title,
                 BuildingName = w.Request.Building.Name,
                 StatusName = w.Status.Name,
+                StatusIsTerminal = w.Status.IsTerminal,
                 CreatedAtUtc = w.CreatedAtUtc,
                 TotalMinutes = w.WorkLogs.Where(l => !l.IsDeleted).Sum(l => l.MinutesSpent),
                 Logs = w.WorkLogs

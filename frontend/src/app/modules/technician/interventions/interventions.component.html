@@ -12,7 +12,9 @@
     <div class="intervention-head">
       <div class="head-main">
         <h2>{{ item.requestTitle }}</h2>
-        <p class="muted">{{ item.buildingName }} &middot; {{ item.createdAtUtc | date: 'short' }}</p>
+        <p class="muted">
+          {{ item.buildingName }} &middot; {{ item.createdAtUtc | date: 'short' }}
+        </p>
       </div>
       <div class="head-right">
         <span class="status-pill">{{ item.statusName }}</span>
@@ -23,16 +25,25 @@
     <div class="logs" *ngIf="item.logs.length > 0">
       <div class="log" *ngFor="let log of item.logs">
         <span class="log-note">{{ log.note }}</span>
-        <span class="log-meta">{{ log.minutesSpent }} min &middot; {{ log.createdAtUtc | date: 'short' }}</span>
+        <span class="log-meta"
+          >{{ log.minutesSpent }} min &middot; {{ log.createdAtUtc | date: 'short' }}</span
+        >
       </div>
     </div>
     <p class="muted no-logs" *ngIf="item.logs.length === 0">No work logged yet.</p>
 
     <div class="card-actions">
-      <button mat-stroked-button (click)="addLog(item)">
-        <mat-icon>add</mat-icon>
-        Add work log
-      </button>
+      <!-- A disabled Material button swallows pointer events, so the tooltip sits on a wrapper. -->
+      <span
+        [matTooltip]="
+          item.statusIsTerminal ? 'This intervention is closed, no more work can be logged.' : ''
+        "
+      >
+        <button mat-stroked-button [disabled]="item.statusIsTerminal" (click)="addLog(item)">
+          <mat-icon>add</mat-icon>
+          Add work log
+        </button>
+      </span>
     </div>
   </mat-card>
 </div>
