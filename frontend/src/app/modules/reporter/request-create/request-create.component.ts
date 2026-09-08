@@ -4,7 +4,10 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { concatMap, from, last, tap } from 'rxjs';
-import { ImageCropDialogComponent } from './image-crop-dialog/image-crop-dialog.component';
+import {
+  ImageCropDialogComponent,
+  ImageCropDialogResult
+} from './image-crop-dialog/image-crop-dialog.component';
 import { NotificationsStateService } from '../../../core/services/notifications-state.service';
 import { LookupsApiService } from '../../../api-services/lookups/lookups-api.service';
 import {
@@ -121,11 +124,15 @@ export class RequestCreateComponent implements OnInit, OnDestroy {
     this.dialog
       .open(ImageCropDialogComponent, { data: { file }, width: '720px', maxWidth: '92vw' })
       .afterClosed()
-      .subscribe((blob?: Blob) => {
-        if (!blob) {
+      .subscribe((result?: ImageCropDialogResult) => {
+        if (!result) {
           return;
         }
-        const cropped = new File([blob], this.toPngName(file.name), { type: 'image/png' });
+        if (result === 'load-failed') {
+          this.toaster.error(`${file.name}: the file is not a readable image.`);
+          return;
+        }
+        const cropped = new File([result], this.toPngName(file.name), { type: 'image/png' });
         if (cropped.size > this.maxFileSizeBytes) {
           this.toaster.error('The cropped image is larger than 5 MB.');
           return;
